@@ -25,6 +25,7 @@ import { usePostHog } from 'posthog-js/react'
 import { SetStateAction, useCallback, useEffect, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { useEnhancedChat } from '@/hooks/use-enhanced-chat'
+import { useUserTeam } from '@/lib/user-team-provider'
 import { HeroPillSecond } from '@/components/announcement'
 import { useAnalytics } from '@/lib/analytics-service'
 
@@ -69,7 +70,8 @@ export default function Home() {
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [isLoadingProject, setIsLoadingProject] = useState(false)
 
-  const { session, userTeam } = useAuth(setAuthDialogCallback, setAuthViewCallback)
+  const { session } = useAuth(setAuthDialogCallback, setAuthViewCallback)
+  const { userTeam } = useUserTeam()
 
 
   const { executeCode: enhancedExecuteCode } = useEnhancedChat({
@@ -310,11 +312,16 @@ export default function Home() {
     const updatedMessages = [...messages, newMessage]
     setMessages(updatedMessages)
 
+    const templateToSend =
+      selectedTemplate === 'auto'
+        ? templates
+        : { [selectedTemplate]: templates[selectedTemplate] }
+
     submit({
       userID: session?.user?.id,
       teamID: userTeam?.id,
       messages: toAISDKMessages(updatedMessages),
-      template: templates,
+      template: templateToSend,
       model: currentModel,
       config: languageModel,
     })

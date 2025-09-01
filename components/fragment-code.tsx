@@ -1,4 +1,4 @@
-import { CodeView } from './code-view'
+import dynamic from 'next/dynamic'
 import { Button } from './ui/button'
 import { CopyButton } from './ui/copy-button'
 import {
@@ -9,6 +9,10 @@ import {
 } from '@/components/ui/tooltip'
 import { Download, FileText } from 'lucide-react'
 import { useState } from 'react'
+
+const CodeView = dynamic(() => import('./code-view').then(mod => mod.CodeView), {
+  ssr: false,
+})
 
 export function FragmentCode({
   files,

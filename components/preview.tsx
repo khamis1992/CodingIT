@@ -1,5 +1,4 @@
 import { EnhancedCodeInterpreter } from './enhanced-code-interpreter'
-import { CodeEditor } from './code-editor'
 import { FragmentCode } from './fragment-code'
 import { FragmentPreview } from './fragment-preview'
 import { FragmentTerminal } from './fragment-terminal'
@@ -13,9 +12,10 @@ import {
 } from '@/components/ui/tooltip'
 import { FragmentSchema } from '@/lib/schema'
 import { ExecutionResult } from '@/lib/types'
+import { getTemplateFiles, TemplateFile } from '@/lib/template-files'
 import { DeepPartial } from 'ai'
 import { ChevronsRight, LoaderCircle, Terminal, CodeIcon } from 'lucide-react'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { IDE } from './ide'
 
 export function Preview({
@@ -49,6 +49,22 @@ export function Preview({
   selectedFile: { path: string; content: string } | null
   onSave: (path: string, content: string) => void
 }) {
+  const [templateFiles, setTemplateFiles] = useState<TemplateFile[]>([
+    { name: 'code.tsx', content: fragment?.code ?? '' },
+  ])
+
+  useEffect(() => {
+    const fetchTemplateFiles = async () => {
+      if (result?.template) {
+        const files = await getTemplateFiles(result.template, fragment?.code)
+        setTemplateFiles(files)
+      } else {
+        setTemplateFiles([{ name: 'code.tsx', content: fragment?.code ?? '' }])
+      }
+    }
+    fetchTemplateFiles()
+  }, [result?.template, fragment?.code])
+
   if (!fragment) {
     return null
   }
@@ -143,7 +159,7 @@ export function Preview({
         {fragment && (
           <div className="overflow-y-auto w-full h-full">
             <TabsContent value="code" className="h-full">
-              <FragmentCode files={[{ name: 'pages/index.tsx', content: fragment?.code ?? '' }]} />
+              <FragmentCode files={templateFiles} />
             </TabsContent>
             <TabsContent value="fragment" className="h-full">
               {result && (
