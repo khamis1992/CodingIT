@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { 
   Shield, 
   Download, 
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
+import { useUserTeam } from '@/lib/user-team-provider'
 import { 
   getUserPreferences, 
   updateUserPreferences,
@@ -35,8 +37,11 @@ interface PrivacySettings {
 
 export default function PrivacySettings() {
   const { session } = useAuth(() => {}, () => {})
+  const { userTeam } = useUserTeam()
   const { toast } = useToast()
   
+  const isFreeUser = userTeam?.tier === 'free'
+
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
     analytics_enabled: true,
     marketing_emails: false,
@@ -291,11 +296,22 @@ export default function PrivacySettings() {
                 Help us improve the platform by sharing anonymous usage data
               </p>
             </div>
-            <Switch
-              checked={privacySettings.analytics_enabled}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('analytics_enabled', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.analytics_enabled}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('analytics_enabled', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="flex items-center justify-between">
@@ -308,11 +324,22 @@ export default function PrivacySettings() {
                 Receive updates about new features, tips, and special offers
               </p>
             </div>
-            <Switch
-              checked={privacySettings.marketing_emails}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('marketing_emails', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.marketing_emails}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('marketing_emails', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="flex items-center justify-between">
@@ -325,11 +352,22 @@ export default function PrivacySettings() {
                 Share aggregated, anonymous data with research partners
               </p>
             </div>
-            <Switch
-              checked={privacySettings.data_sharing}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('data_sharing', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.data_sharing}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('data_sharing', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="flex items-center justify-between">
@@ -342,11 +380,22 @@ export default function PrivacySettings() {
                 Track your activity to provide personalized recommendations
               </p>
             </div>
-            <Switch
-              checked={privacySettings.activity_tracking}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('activity_tracking', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.activity_tracking}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('activity_tracking', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="flex items-center justify-between">
@@ -359,11 +408,22 @@ export default function PrivacySettings() {
                 Customize the interface and content based on your preferences
               </p>
             </div>
-            <Switch
-              checked={privacySettings.personalization}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('personalization', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.personalization}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('personalization', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="flex items-center justify-between">
@@ -376,11 +436,22 @@ export default function PrivacySettings() {
                 Help us improve our products and services by sharing anonymous usage data. This data may be sold to third parties.
               </p>
             </div>
-            <Switch
-              checked={privacySettings.telemetry_enabled}
-              onCheckedChange={(checked: boolean) => handleUpdateSetting('telemetry_enabled', checked)}
-              disabled={isUpdating}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Switch
+                    checked={privacySettings.telemetry_enabled}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('telemetry_enabled', checked)}
+                    disabled={isUpdating || isFreeUser}
+                  />
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to change this setting.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardContent>
       </Card>
@@ -401,18 +472,29 @@ export default function PrivacySettings() {
                 Download a copy of all your personal data including projects, preferences, and usage history
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleExportData}
-              disabled={isExporting}
-            >
-              {isExporting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Download className="h-4 w-4 mr-2" />
-              )}
-              {isExporting ? 'Exporting...' : 'Export Data'}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleExportData}
+                    disabled={isExporting || isFreeUser}
+                  >
+                    {isExporting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
+                    {isExporting ? 'Exporting...' : 'Export Data'}
+                  </Button>
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to use this feature.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <Separator />
@@ -427,18 +509,29 @@ export default function PrivacySettings() {
                 Permanently delete your account and all associated data. This action cannot be undone.
               </p>
             </div>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteAccount}
-              disabled={isDeletingAccount}
-            >
-              {isDeletingAccount ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleDeleteAccount}
+                    disabled={isDeletingAccount || isFreeUser}
+                  >
+                    {isDeletingAccount ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 mr-2" />
+                    )}
+                    {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
+                  </Button>
+                </TooltipTrigger>
+                {isFreeUser && (
+                  <TooltipContent>
+                    <p>Upgrade to a paid plan to use this feature.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardContent>
       </Card>

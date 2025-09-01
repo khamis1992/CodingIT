@@ -541,8 +541,8 @@ export async function checkSupabaseConnection(): Promise<boolean> {
   if (!supabase) return false
   
   try {
-    const { error } = await supabase.auth.getSession()
-    return !error
+    const { data: { session } } = await supabase.auth.getSession()
+    return !!session
   } catch (error) {
     console.error('Supabase connection check failed:', error)
     return false

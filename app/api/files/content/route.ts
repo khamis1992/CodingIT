@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server'
 import { Sandbox } from '@e2b/code-interpreter'
+import { LRUCache } from 'lru-cache'
+
+const cache = new LRUCache<string, string>({
+  max: 500,
+  ttl: 1000 * 60 * 5, // 5 minutes
+})
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -41,8 +47,18 @@ export async function GET(req: Request) {
       )
     }
 
+    const cacheKey = `${sessionID}:${path}`
+    const cachedContent = cache.get(cacheKey)
+
+    if (cachedContent) {
+      return NextResponse.json({ content: cachedContent })
+    }
+
     const sandbox = await getSandbox(sessionID, template || undefined)
     const content = await sandbox.files.read(path)
+
+    cache.set(cacheKey, content)
+
     return NextResponse.json({ content })
   } catch (error: any) {
     return NextResponse.json(
@@ -65,6 +81,10 @@ export async function POST(req: Request) {
 
     const sandbox = await getSandbox(sessionID, template || undefined)
     await sandbox.files.write(path, content)
+
+    const cacheKey = `${sessionID}:${path}`
+    cache.delete(cacheKey)
+
     return NextResponse.json({ success: true })
   } catch (error: any) {
     return NextResponse.json(

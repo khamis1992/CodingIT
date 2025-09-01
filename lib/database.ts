@@ -2,6 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { createSupabaseBrowserClient } from './supabase-browser'
 import { Message } from './messages'
 import { clearSettingsCache } from './user-settings'
+import { getFromCache, setInCache, invalidateCache } from './caching'
 
 // The supabase client will be passed as an argument to functions.
 // A browser client is created here for convenience on the client-side.
@@ -128,10 +129,16 @@ export async function getProjects(
   includeArchived: boolean = false,
   teamId?: string
 ): Promise<Project[]> {
-  return safeApiCall(supabase!, async () => {
-    const { data: { user } } = await supabase!.auth.getUser()
-    if (!user) return []
+  const { data: { user } } = await supabase!.auth.getUser()
+  if (!user) return []
 
+  const cacheKey = `projects:${user.id}:${includeArchived}:${teamId || ''}`
+  const cachedProjects = getFromCache<Project[]>(cacheKey)
+  if (cachedProjects) {
+    return cachedProjects
+  }
+
+  return safeApiCall(supabase!, async () => {
     let query = supabase!
       .from('projects')
       .select('*')
@@ -149,6 +156,8 @@ export async function getProjects(
 
     const { data, error } = await query
     if (error) throw error
+    
+    setInCache(cacheKey, data || [])
     return data || []
   }, [], 'getProjects')
 }
@@ -174,6 +183,11 @@ export async function updateProject(
   id: string, 
   updates: Partial<Project>
 ): Promise<boolean> {
+  const { data: { user } } = await supabase!.auth.getUser()
+  if (user) {
+    invalidateCache(new RegExp(`^projects:${user.id}:`))
+  }
+
   return safeApiCall(supabase!, async () => {
     const { error } = await supabase!
       .from('projects')
@@ -190,6 +204,11 @@ export async function deleteProject(
   id: string, 
   permanent: boolean = false
 ): Promise<boolean> {
+  const { data: { user } } = await supabase!.auth.getUser()
+  if (user) {
+    invalidateCache(new RegExp(`^projects:${user.id}:`))
+  }
+
   return safeApiCall(supabase!, async () => {
     if (permanent) {
       const { error } = await supabase!
@@ -216,39 +235,41 @@ export async function deleteProject(
 // =============================================
 
 export async function saveMessage(
-  supabase: SupabaseClient<any, "public", any> | null = browserSupabase,
-  projectId: string, 
-  message: Message, 
-  sequenceNumber: number
+  supabase: SupabaseClient<any, 'public', any> | null = browserSupabase,
+  projectId: string,
+  message: Message,
+  sequenceNumber: number,
 ): Promise<boolean> {
-  return safeApiCall(supabase!, async () => {
-    const { error } = await supabase!
-      .from('messages')
-      .insert({
-        project_id: projectId,
-        role: message.role,
-        content: message.content,
-        object_data: message.object,
-        result_data: message.result,
-        sequence_number: sequenceNumber
+  return safeApiCall(
+    supabase!,
+    async () => {
+      const { error } = await supabase!.rpc('save_message_and_update_project', {
+        project_id_param: projectId,
+        role_param: message.role,
+        content_param: message.content,
+        object_data_param: message.object,
+        result_data_param: message.result,
+        sequence_number_param: sequenceNumber,
       })
 
-    if (error) throw error
-
-    // Update project timestamp
-    await supabase!
-      .from('projects')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', projectId)
-
-    return true
-  }, false, 'saveMessage')
+      if (error) throw error
+      return true
+    },
+    false,
+    'saveMessage',
+  )
 }
 
 export async function getProjectMessages(
   supabase: SupabaseClient<any, "public", any> | null = browserSupabase,
   projectId: string
 ): Promise<Message[]> {
+  const cacheKey = `project-messages:${projectId}`
+  const cachedMessages = getFromCache<Message[]>(cacheKey)
+  if (cachedMessages) {
+    return cachedMessages
+  }
+
   return safeApiCall(supabase!, async () => {
     const { data, error } = await supabase!
       .from('messages')
@@ -258,12 +279,15 @@ export async function getProjectMessages(
 
     if (error) throw error
 
-    return data?.map((msg: DbMessage) => ({
+    const messages = data?.map((msg: DbMessage) => ({
       role: msg.role,
       content: msg.content,
       object: msg.object_data,
       result: msg.result_data,
     })) || []
+
+    setInCache(cacheKey, messages)
+    return messages
   }, [], 'getProjectMessages')
 }
 
@@ -271,6 +295,7 @@ export async function clearProjectMessages(
   supabase: SupabaseClient<any, "public", any> | null = browserSupabase,
   projectId: string
 ): Promise<boolean> {
+  invalidateCache(`project-messages:${projectId}`)
   return safeApiCall(supabase!, async () => {
     const { error } = await supabase!
       .from('messages')

@@ -71,21 +71,19 @@ export function BillingForm({ onSubmit, defaultValues, isLoading = false }: Bill
     const loadBillingData = async () => {
       setIsLoadingData(true)
       try {
-        const response = await fetch('/api/billing/update')
+        const response = await fetch('/api/stripe/billing')
         if (response.ok) {
           const { billingInfo } = await response.json()
           if (billingInfo) {
             form.reset({
-              companyName: billingInfo.company_name || '',
-              companyEmail: billingInfo.company_email || '',
+              companyName: billingInfo.name || '',
+              companyEmail: billingInfo.email || '',
               taxId: billingInfo.tax_id || '',
-              address: billingInfo.address || '',
-              city: billingInfo.city || '',
-              state: billingInfo.state || '',
-              postalCode: billingInfo.postal_code || '',
-              country: billingInfo.country || 'US',
-              paymentMethod: billingInfo.payment_method || 'card',
-              billingCycle: billingInfo.billing_cycle || 'monthly',
+              address: billingInfo.address?.line1 || '',
+              city: billingInfo.address?.city || '',
+              state: billingInfo.address?.state || '',
+              postalCode: billingInfo.address?.postal_code || '',
+              country: billingInfo.address?.country || 'US',
             })
           }
         }
