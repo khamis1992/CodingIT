@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Sandbox, FileType } from '@e2b/code-interpreter'
 import { FileSystemNode } from '@/components/file-tree'
+import { getSandbox } from '@/lib/sandbox'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -29,26 +30,6 @@ async function listFilesRecursively(
     }
   }
   return nodes
-}
-
-const E2B_API_KEY = process.env.E2B_API_KEY
-
-const sandboxTimeout = 10 * 60 * 1000
-
-async function getSandbox(sessionID: string, template?: string) {
-  if (!E2B_API_KEY) {
-    throw new Error('E2B_API_KEY environment variable not found')
-  }
-
-  const sandbox = await Sandbox.create(template || 'code-interpreter-v1', {
-    apiKey: E2B_API_KEY,
-    metadata: {
-      sessionID,
-      template: template || 'code-interpreter-v1',
-    },
-    timeoutMs: sandboxTimeout,
-  })
-  return sandbox
 }
 
 export async function GET(request: NextRequest) {
