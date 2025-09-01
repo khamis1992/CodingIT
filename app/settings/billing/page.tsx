@@ -5,27 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
 import { 
-  CreditCard, 
-  Download, 
-  Calendar,
   AlertTriangle,
   Loader2,
   CheckCircle,
-  XCircle,
-  BarChart3,
-  TrendingUp,
-  Activity,
-  Zap,
-  Clock,
-  Users,
-  Server,
-  Database,
   ArrowUp,
   ExternalLink
 } from 'lucide-react'
 import { useState, useEffect, Suspense } from 'react'
-import { useAuth } from '@/lib/auth'
-import { useFeatureFlag, useFeatureValue } from '@/hooks/use-edge-flags'
+import { useAuthContext } from '@/lib/auth-provider'
+import { useUserTeam } from '@/lib/user-team-provider'
+import { useFeatureFlag } from '@/hooks/use-edge-flags'
 import ErrorBoundary, { SettingsSection } from '@/components/error-boundary'
 import { STRIPE_PLANS, formatPrice } from '@/lib/stripe'
 import { useSearchParams } from 'next/navigation'
@@ -51,11 +40,12 @@ interface BillingData {
 }
 
 function BillingSettingsContent() {
-  const { session, userTeam } = useAuth(() => {}, () => {})
+  const { session } = useAuthContext()
+  const { userTeam } = useUserTeam()
   const { toast } = useToast()
   const searchParams = useSearchParams()
   
-  const { enabled: hasAdvancedAnalytics } = useFeatureFlag('advanced-analytics', false)
+  useFeatureFlag('advanced-analytics', false)
 
   const [billingData, setBillingData] = useState<BillingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -95,44 +85,11 @@ function BillingSettingsContent() {
       setIsLoading(true)
       try {
         const response = await fetch('/api/subscription/usage')
-        if (response.ok) {
-          const data = await response.json()
-          setBillingData(data)
-        } else {
-          // Fallback to mock data based on current team tier
-          const userTier = userTeam?.tier || 'free'
-          const mockData: BillingData = {
-            subscription: {
-              id: userTeam?.id || '',
-              name: userTeam?.name || 'Default Team',
-              tier: userTier,
-              subscription_status: 'active',
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              cancel_at_period_end: false
-            },
-            usage_limits: [
-              {
-                usage_type: 'github_imports',
-                limit_value: STRIPE_PLANS[userTier as keyof typeof STRIPE_PLANS].features.githubImports,
-                current_usage: 2,
-                period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-              },
-              {
-                usage_type: 'storage_mb',
-                limit_value: STRIPE_PLANS[userTier as keyof typeof STRIPE_PLANS].features.storageLimit,
-                current_usage: 45,
-                period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-              },
-              {
-                usage_type: 'api_calls',
-                limit_value: STRIPE_PLANS[userTier as keyof typeof STRIPE_PLANS].features.apiCallsPerMonth,
-                current_usage: 234,
-                period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-              }
-            ]
-          }
-          setBillingData(mockData)
+        if (!response.ok) {
+          throw new Error('Failed to fetch billing data')
         }
+        const data = await response.json()
+        setBillingData(data)
       } catch (error) {
         console.error('Error loading billing data:', error)
         toast({
@@ -176,36 +133,10 @@ function BillingSettingsContent() {
     }
   }
 
-  const handleManageBilling = async () => {
-    setIsUpdating(true)
-    try {
-      const response = await fetch('/api/stripe/portal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (response.ok) {
-        const { url } = await response.json()
-        window.location.href = url
-      } else {
-        const error = await response.json()
-        throw new Error(error.error)
-      }
-    } catch (error) {
-      console.error('Portal error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to open billing portal.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
-  }
 
   const handleBillingFormSubmit = async (data: any) => {
     try {
-      const response = await fetch('/api/billing/update', {
+      const response = await fetch('/api/stripe/billing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -311,7 +242,7 @@ function BillingSettingsContent() {
                   {formatPrice(currentPlan.price)}
                   {currentPlan.price > 0 && <span className="text-sm font-normal">/month</span>}
                 </div>
-                {billingData?.subscription.tier === 'free' ? (
+                {billingData?.subscription.tier === 'free' && (
                   <div className="space-x-2 mt-2">
                     <Button onClick={() => handleUpgrade('pro')} disabled={isUpdating}>
                       {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -319,12 +250,6 @@ function BillingSettingsContent() {
                       Upgrade to Pro
                     </Button>
                   </div>
-                ) : (
-                  <Button variant="outline" onClick={handleManageBilling} disabled={isUpdating}>
-                    {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Manage Billing
-                  </Button>
                 )}
               </div>
             </div>
@@ -344,62 +269,49 @@ function BillingSettingsContent() {
         </Card>
       </SettingsSection>
 
-      {/* Plan Comparison */}
-      {billingData?.subscription.tier === 'free' && (
-        <SettingsSection
-          title="Upgrade Your Plan"
-          description="Get more features and higher limits"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(STRIPE_PLANS).map(([key, plan]) => (
-              <Card key={key} className={key === 'pro' ? 'border-primary' : ''}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{plan.name}</CardTitle>
-                    {key === 'pro' && (
-                      <Badge>Recommended</Badge>
-                    )}
-                  </div>
-                  <div className="text-2xl font-bold">
-                    {formatPrice(plan.price)}
-                    {plan.price > 0 && <span className="text-sm font-normal">/month</span>}
-                  </div>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                      {plan.features.githubImports === -1 ? 'Unlimited' : plan.features.githubImports} GitHub imports
-                    </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                      {plan.features.storageLimit === -1 ? 'Unlimited' : `${plan.features.storageLimit}MB`} storage
-                    </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                      {plan.features.apiCallsPerMonth === -1 ? 'Unlimited' : plan.features.apiCallsPerMonth.toLocaleString()} API calls/month
-                    </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                      {plan.features.executionTimeLimit}s max execution time
-                    </li>
-                  </ul>
-                  <Button 
-                    className="w-full mt-4" 
-                    variant={key === billingData?.subscription.tier ? 'secondary' : 'default'}
-                    disabled={key === billingData?.subscription.tier || key === 'free' || isUpdating}
-                    onClick={() => handleUpgrade(key)}
-                  >
-                    {key === billingData?.subscription.tier ? 'Current Plan' : 
-                     key === 'free' ? 'Free Forever' : `Upgrade to ${plan.name}`}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </SettingsSection>
-      )}
+
+      {/* Manage Subscription */}
+      <SettingsSection
+        title="Manage Subscription"
+        description="Change your plan or update billing details"
+      >
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Upgrade to Pro</p>
+                  <p className="text-sm text-muted-foreground">
+                    Unlock more features and higher limits.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => handleUpgrade('pro')} 
+                  disabled={isUpdating || billingData?.subscription.tier === 'pro'}
+                >
+                  {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Upgrade to Pro
+                </Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Upgrade to Enterprise</p>
+                  <p className="text-sm text-muted-foreground">
+                    For teams and organizations with advanced needs.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => handleUpgrade('enterprise')} 
+                  disabled={isUpdating || billingData?.subscription.tier === 'enterprise'}
+                >
+                  {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Upgrade to Enterprise
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </SettingsSection>
 
       {/* Billing Information Form */}
       <SettingsSection
