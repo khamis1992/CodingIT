@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
+import { getFromCache, setInCache, invalidateCache } from './caching'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -113,6 +114,8 @@ export class SupabaseChatPersistence {
     sessionId: string,
     message: Omit<ChatMessage, 'sessionId' | 'id' | 'timestamp'>
   ): Promise<ChatMessage> {
+    invalidateCache(`sessions:${userId}`)
+    invalidateCache(`messages:${sessionId}`)
     const now = new Date().toISOString()
     const messageId = uuidv4()
     const newMessage: ChatMessage = {
@@ -161,6 +164,12 @@ export class SupabaseChatPersistence {
    * Get all messages for a session
    */
   static async getSessionMessages(userId: string, sessionId: string): Promise<ChatMessage[]> {
+    const cacheKey = `messages:${sessionId}`
+    const cachedMessages = getFromCache<ChatMessage[]>(cacheKey)
+    if (cachedMessages) {
+      return cachedMessages
+    }
+
     const { data, error } = await supabase
       .from('chat_message_cache')
       .select(`
@@ -189,7 +198,7 @@ export class SupabaseChatPersistence {
       return []
     }
 
-    return data.map(row => ({
+    const messages = data.map(row => ({
       id: row.message_id,
       sessionId,
       role: row.role as 'user' | 'assistant' | 'system',
@@ -202,6 +211,9 @@ export class SupabaseChatPersistence {
         executionTime: row.execution_time_ms,
       }
     }))
+
+    setInCache(cacheKey, messages)
+    return messages
   }
 
   /**
@@ -237,6 +249,12 @@ export class SupabaseChatPersistence {
    * List all sessions for a user
    */
   static async getUserSessions(userId: string, limit = 50): Promise<ChatSession[]> {
+    const cacheKey = `sessions:${userId}:${limit}`
+    const cachedSessions = getFromCache<ChatSession[]>(cacheKey)
+    if (cachedSessions) {
+      return cachedSessions
+    }
+
     const { data, error } = await supabase
       .from('chat_sessions')
       .select('*')
@@ -250,7 +268,7 @@ export class SupabaseChatPersistence {
       return []
     }
 
-    return data.map(row => ({
+    const sessions = data.map(row => ({
       sessionId: row.session_id,
       userId: row.user_id,
       teamId: row.team_id,
@@ -262,6 +280,9 @@ export class SupabaseChatPersistence {
       template: row.template,
       status: row.status as 'active' | 'archived' | 'deleted',
     }))
+
+    setInCache(cacheKey, sessions)
+    return sessions
   }
 
   /**
@@ -278,6 +299,8 @@ export class SupabaseChatPersistence {
       console.error('Error updating session title:', error)
       throw new Error(`Failed to update session title: ${error.message}`)
     }
+
+    invalidateCache(`sessions:${userId}`)
   }
 
   /**
@@ -294,6 +317,8 @@ export class SupabaseChatPersistence {
       console.error('Error archiving session:', error)
       throw new Error(`Failed to archive session: ${error.message}`)
     }
+
+    invalidateCache(`sessions:${userId}`)
   }
 
   /**
@@ -310,6 +335,9 @@ export class SupabaseChatPersistence {
       console.error('Error deleting session:', error)
       throw new Error(`Failed to delete session: ${error.message}`)
     }
+
+    invalidateCache(`sessions:${userId}`)
+    invalidateCache(`messages:${sessionId}`)
   }
 
   /**

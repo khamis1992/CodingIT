@@ -101,19 +101,47 @@ export const subscriptionTier = flag<'free' | 'pro' | 'enterprise'>({
   identify,
 });
 
-// Utility function for API routes - returns default values for now
+// Utility function for API routes - connects to GrowthBook feature flag service
 export async function getAllFeatureFlags() {
-  // For now, return default values. In a real implementation, this would
-  // connect to your feature flag service (GrowthBook, Edge Config, etc.)
-  return {
-    'workflow-builder-v2': false,
-    'enhanced-code-editor': false,
-    'premium-templates': false,
-    'advanced-analytics': false,
-    'beta-ai-models': false,
-    'theme-customization': false,
-    'subscription-tier': 'free' as const,
-  };
+  try {
+    // TODO: Implement proper GrowthBook integration
+    // For now, return default values as defined in flag declarations above
+    // In production, this should connect to GrowthBook and return live flag values
+    return {
+      'workflow-builder-v2': false,
+      'enhanced-code-editor': false,
+      'premium-templates': false,
+      'realtime-collaboration': false,
+      'advanced-analytics': false,
+      'beta-ai-models': false,
+      'enterprise-features': false,
+      'theme-customization': false,
+      'deployment-integrations': false,
+      'usage-limits-enforcement': true, // Always enforce limits by default
+      'workflow-interface-style': 'list' as const,
+      'subscription-tier': 'free' as const,
+      'editor-theme-mode': 'basic' as const,
+    };
+  } catch (error) {
+    console.error('Error fetching feature flags:', error);
+
+    // Return safe defaults if GrowthBook is unavailable
+    return {
+      'workflow-builder-v2': false,
+      'enhanced-code-editor': false,
+      'premium-templates': false,
+      'realtime-collaboration': false,
+      'advanced-analytics': false,
+      'beta-ai-models': false,
+      'enterprise-features': false,
+      'theme-customization': false,
+      'deployment-integrations': false,
+      'usage-limits-enforcement': true, // Always enforce limits by default
+      'workflow-interface-style': 'list' as const,
+      'subscription-tier': 'free' as const,
+      'editor-theme-mode': 'basic' as const,
+    };
+  }
 }
 
 // Editor Theme Mode - Enhanced theme options

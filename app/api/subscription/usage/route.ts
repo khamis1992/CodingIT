@@ -1,65 +1,60 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
-import { getTeamUsageLimits, getTeamSubscription } from '@/lib/subscription'
+import { stripe } from '@/lib/stripe'
 
-export const dynamic = 'force-dynamic'
+export async function GET() {
+  const supabase = createServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
 
-export async function GET(request: NextRequest) {
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (!stripe) {
+    return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
+  }
+
+  const { data: teamData } = await supabase
+    .from('users_teams')
+    .select('teams (stripe_customer_id)')
+    .eq('user_id', user.id)
+    .eq('is_default', true)
+    .single()
+
+  const customerId = (teamData?.teams as any)?.stripe_customer_id
+
+  if (!customerId) {
+    return NextResponse.json({ usage: [] })
+  }
+
   try {
-    const supabase = createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user's default team
-    const { data: userTeam, error: teamError } = await supabase
-      .from('users_teams')
-      .select('teams (id)')
-      .eq('user_id', user.id)
-      .eq('is_default', true)
-      .single()
-
-    if (teamError || !userTeam?.teams) {
-      console.error('Team lookup failed for user:', user.id, teamError)
-      // Return default free tier limits instead of error
-      return NextResponse.json({
-        subscription: {
-          id: 'default',
-          name: 'Personal',
-          tier: 'free',
-          subscription_status: 'active',
-          cancel_at_period_end: false
-        },
-        usage_limits: [
-          {
-            usage_type: 'api_calls',
-            limit_value: 100,
-            current_usage: 0,
-            period_start: new Date().toISOString(),
-            period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          }
-        ]
-      })
-    }
-
-    const team = userTeam.teams as any
-    
-    const [subscription, usageLimits] = await Promise.all([
-      getTeamSubscription(team.id),
-      getTeamUsageLimits(team.id)
-    ])
-
-    return NextResponse.json({
-      subscription,
-      usage_limits: usageLimits
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      expand: ['data.items'],
     })
+
+    if (!subscriptions.data.length) {
+      return NextResponse.json({ usage: [] })
+    }
+
+    const subscription = subscriptions.data[0]
+    const usage = subscription.items.data.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: {
+        id: (item.price as any).id,
+        unit_amount: (item.price as any).unit_amount,
+        currency: (item.price as any).currency,
+        product: (item.price as any).product,
+      },
+    }))
+
+    return NextResponse.json({ usage })
   } catch (error) {
-    console.error('Usage API error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch usage data' },
-      { status: 500 }
-    )
+    console.error('Error fetching Stripe subscription usage:', error)
+    return NextResponse.json({ error: 'Failed to fetch subscription usage' }, { status: 500 })
   }
 }

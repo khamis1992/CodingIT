@@ -2,6 +2,7 @@
 
 import { usePostHog } from 'posthog-js/react'
 import { useAuth } from './auth'
+import { useUserTeam } from './user-team-provider'
 import { FragmentSchema } from './schema'
 
 // Analytics Event Types for Business Intelligence
@@ -407,7 +408,8 @@ export class AnalyticsService {
 // React Hook for Easy Usage
 export function useAnalytics() {
   const posthog = usePostHog()
-  const { session, userTeam } = useAuth(() => {}, () => {})
+  const { session } = useAuth(() => {}, () => {})
+  const { userTeam } = useUserTeam()
   const analytics = AnalyticsService.getInstance()
 
   // Initialize analytics service
