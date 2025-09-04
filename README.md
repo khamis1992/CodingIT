@@ -7,69 +7,31 @@
   </a>
 </p>
 
-**CodinIT.dev** is a comprehensive AI-powered software development platform that combines multiple Large Language Models (LLMs), secure code execution environments, and advanced workflow automation to create a complete development ecosystem. Build, test, and deploy applications using natural language with the power of AI.
 
-## 🚀 What Makes CodinIT.dev Special
+## Features
 
-- **Multi-LLM Integration**: Choose from 50+ AI models including GPT-5, Claude Sonnet 4, Gemini 2.5, Mistral, and more
-- **Secure Code Execution**: Run code safely in isolated E2B sandbox environments
-- **Visual Workflow Builder**: Create complex automation workflows with drag-and-drop interface
-- **Fragment-Based Development**: Modular, reusable code components with real-time preview
-- **Multiple Tech Stacks**: Support for Python, Next.js, Vue.js, Streamlit, and Gradio applications
-- **Team Collaboration**: Real-time project sharing with authentication and billing management
-- **GitHub Integration**: Direct repository access and deployment capabilities
-- **Enterprise Ready**: Stripe billing, usage tracking, and team management
+- Based on Next.js 14 (App Router, Server Actions), shadcn/ui, TailwindCSS, Vercel AI SDK.
+- Streaming in the UI.
+- Can install and use any package from npm, pip.
+- Supported stacks ([add your own](#adding-custom-personas)):
+  - 🔸 Python interpreter
+  - 🔸 Next.js
+  - 🔸 Vue.js
+  - 🔸 Streamlit
+  - 🔸 Gradio
+- Supported LLM Providers ([add your own](#adding-custom-llm-models)):
+  - 🔸 OpenAI
+  - 🔸 Anthropic
+  - 🔸 Google AI
+  - 🔸 Mistral
+  - 🔸 Groq
+  - 🔸 Fireworks
+  - 🔸 Together AI
+  - 🔸 Ollama
 
-## 🔥 Core Features
+**Make sure to give us a star!**
 
-### AI-Powered Code Generation
-- **50+ LLM Models**: GPT-5, Claude Sonnet 4, Gemini 2.5 Pro, Mistral Large, Grok 4, DeepSeek, and more
-- **Multi-Modal Support**: Text, image, and code understanding across providers
-- **Streaming Responses**: Real-time AI code generation with live preview
-- **Smart Template Detection**: Automatically selects optimal tech stack for your project
-
-### Secure Development Environment
-- **E2B Sandboxes**: Isolated, secure code execution environments
-- **Multiple Runtimes**: Python, Node.js, and custom Docker environments
-- **Package Management**: Automatic npm/pip package installation
-- **File System Access**: Full file tree browser and editor
-
-### Development Templates
-- **🐍 Python Data Analyst**: Jupyter-style notebooks with data visualization
-- **⚛️ Next.js Developer**: Full-stack React applications with TypeScript
-- **🟢 Vue.js Developer**: Modern Vue 3 applications with Nuxt
-- **📊 Streamlit Developer**: Interactive data apps and dashboards
-- **🤗 Gradio Developer**: ML model interfaces and demos
-
-### Advanced Workflow System
-- **Visual Workflow Builder**: Drag-and-drop interface for complex automations
-- **Multi-Step Execution**: Chain multiple AI operations and code executions
-- **Fragment System**: Reusable code components with dependency management
-- **Workflow Templates**: Pre-built automation patterns
-
-### Collaboration & Management
-- **Team Workspaces**: Shared projects with role-based access control
-- **Real-time Sync**: Live collaboration with Supabase real-time subscriptions
-- **Project History**: Version control and execution tracking
-- **Usage Analytics**: Detailed insights with PostHog integration
-
-### Integrations & Deployment
-- **GitHub Integration**: Repository browsing, cloning, and webhook support
-- **Cloud Deployment**: Direct deployment to various cloud platforms
-- **Stripe Billing**: Subscription management and usage-based pricing
-- **API Access**: RESTful API for programmatic access
-
-### Supported AI Providers
-- **OpenAI**: GPT-5, GPT-4o, o1, o3 series
-- **Anthropic**: Claude Opus 4, Sonnet 4, Haiku 3.5
-- **Google**: Gemini 2.5 Pro, Flash, and Vertex AI models
-- **Mistral**: Magistral, Large, Codestral, Pixtral
-- **xAI**: Grok 4, Grok 3 series
-- **DeepSeek**: V3 and R1 models
-- **Groq**: High-speed inference for Llama, Qwen models
-- **Fireworks**: Fast deployment for open-source models
-- **Together AI**: Collaborative AI model serving
-- **Ollama**: Local model deployment
+This is an open-source version of apps like [Anthropic's Claude Artifacts](https://www.anthropic.com/news/claude-3-5-sonnet), Vercel [v0](https://v0.dev), or [GPT Engineer](https://gptengineer.app).
 
 ## Get started
 
@@ -85,46 +47,21 @@
 In your terminal:
 
 ```
-git clone https://github.com/Gerome-Elassaad/CodingIT.git
+git clone https://github.com/e2b-dev/fragments.git
 ```
-Replace `Gerome-Elassaad/CodingIT.git` with your actual repository details.
-
-## 🏧 Technology Stack
-
-### Frontend
-- **Next.js 14**: App Router, Server Actions, and React 18
-- **TypeScript**: Full type safety throughout the application
-- **TailwindCSS**: Utility-first CSS framework with custom design system
-- **shadcn/ui**: Modern React component library
-- **Framer Motion**: Smooth animations and transitions
-- **Monaco Editor**: VS Code-style code editing experience
-
-### Backend & Infrastructure
-- **Supabase**: PostgreSQL database with real-time subscriptions
-- **E2B Sandboxes**: Secure, isolated code execution environments
-- **Vercel AI SDK**: Unified interface for multiple LLM providers
-- **Stripe**: Payment processing and subscription management
-- **Upstash Redis**: Rate limiting and caching
-- **PostHog**: User analytics and feature flags
-
-### AI & Machine Learning
-- **Multi-Provider Support**: OpenAI, Anthropic, Google, Mistral, xAI, DeepSeek
-- **Code Interpreter**: AI-powered code analysis and execution
-- **Workflow Engine**: Multi-step AI automation system
-- **Fragment System**: Modular AI-generated code components
-
-### Development & Deployment
-- **GitHub Integration**: OAuth, repository access, webhooks
-- **Cloud Deployment**: Multi-platform deployment support
-- **Docker**: Containerized sandbox environments
-- **WebSocket**: Real-time collaboration and updates
 
 ### 2. Install the dependencies
 
-Navigate into the cloned project directory (if you're not already in it) and run the following to install the required dependencies:
+Enter the repository:
 
 ```
-npm install
+cd fragments
+```
+
+Run the following to install the required dependencies:
+
+```
+npm i
 ```
 
 ### 3. Set the environment variables
@@ -132,200 +69,182 @@ npm install
 Create a `.env.local` file and set the following:
 
 ```sh
-# Core Services
-# =============
-
-# E2B (Code Execution) - Required
-# Get your API key at https://e2b.dev/
+# Get your API key here - https://e2b.dev/
 E2B_API_KEY="your-e2b-api-key"
 
-# Supabase (Database & Authentication) - Required
-# Get your credentials at https://supabase.com/
-SUPABASE_URL="your-supabase-url"
-SUPABASE_ANON_KEY="your-supabase-anon-key"
+# OpenAI API Key
+OPENAI_API_KEY=
 
-# AI Providers (at least one required)
-# ===================================
+# Other providers
+ANTHROPIC_API_KEY=
+GROQ_API_KEY=
+FIREWORKS_API_KEY=
+TOGETHER_API_KEY=
+GOOGLE_AI_API_KEY=
+GOOGLE_VERTEX_CREDENTIALS=
+MISTRAL_API_KEY=
+XAI_API_KEY=
 
-# OpenAI
-OPENAI_API_KEY="your-openai-api-key"
+### Optional env vars
 
-# Anthropic (Claude)
-ANTHROPIC_API_KEY="your-anthropic-api-key"
+# Domain of the site
+NEXT_PUBLIC_SITE_URL=
 
-# Google AI
-GOOGLE_AI_API_KEY="your-google-ai-api-key"
+# Rate limit
+RATE_LIMIT_MAX_REQUESTS=
+RATE_LIMIT_WINDOW=
 
-# Google Vertex AI (requires service account JSON)
-GOOGLE_VERTEX_CREDENTIALS="your-vertex-service-account-json"
+# Vercel/Upstash KV (short URLs, rate limiting)
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
 
-# Mistral
-MISTRAL_API_KEY="your-mistral-api-key"
+# Supabase (auth)
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
 
-# xAI (Grok)
-XAI_API_KEY="your-xai-api-key"
+# PostHog (analytics)
+NEXT_PUBLIC_POSTHOG_KEY=
+NEXT_PUBLIC_POSTHOG_HOST=
 
-# DeepSeek
-DEEPSEEK_API_KEY="your-deepseek-api-key"
+### Disabling functionality (when uncommented)
 
-# Groq
-GROQ_API_KEY="your-groq-api-key"
+# Disable API key and base URL input in the chat
+# NEXT_PUBLIC_NO_API_KEY_INPUT=
+# NEXT_PUBLIC_NO_BASE_URL_INPUT=
 
-# Fireworks
-FIREWORKS_API_KEY="your-fireworks-api-key"
-
-# Together AI
-TOGETHER_API_KEY="your-together-api-key"
-
-# Integrations & Features
-# ======================
-
-# GitHub OAuth (for repository access)
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
-
-# Stripe (for billing and subscriptions)
-STRIPE_SECRET_KEY="your-stripe-secret-key"
-STRIPE_WEBHOOK_SECRET="your-stripe-webhook-secret"
-
-# Vercel/Upstash KV (for rate limiting)
-KV_REST_API_URL="your-kv-rest-api-url"
-KV_REST_API_TOKEN="your-kv-rest-api-token"
-
-# PostHog (analytics and feature flags)
-NEXT_PUBLIC_POSTHOG_KEY="your-posthog-key"
-NEXT_PUBLIC_POSTHOG_HOST="https://us.posthog.com"
-
-# Application Configuration
-# ========================
-
-# Site URL (for OAuth redirects)
-NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-
-# Rate Limiting
-RATE_LIMIT_MAX_REQUESTS="100"
-RATE_LIMIT_WINDOW="900000"
-
-# Feature Flags (optional)
-# =======================
-
-# Disable API key input in chat interface
-# NEXT_PUBLIC_NO_API_KEY_INPUT=true
-
-# Disable base URL input in chat interface  
-# NEXT_PUBLIC_NO_BASE_URL_INPUT=true
-
-# Hide local models (Ollama) from model list
-# NEXT_PUBLIC_HIDE_LOCAL_MODELS=true
+# Hide local models from the list of available models
+# NEXT_PUBLIC_HIDE_LOCAL_MODELS=
 ```
 
 ### 4. Start the development server
 
 ```
 npm run dev
-
-The application will be available at `http://localhost:3000`
 ```
 
 ### 5. Build the web app
 
 ```
 npm run build
-
-### 6. Run linting (optional)
-
-```
-npm run lint
 ```
 
-## 🏡 Architecture Overview
+## Customize
 
-### Core Systems
+### Adding custom personas
 
-**Fragment System**: Modular code components that can be composed, reused, and shared across projects. Each fragment contains:
-- Code implementation
-- Dependencies and libraries
-- Execution context and environment
-- Preview and testing capabilities
+1. Make sure [E2B CLI](https://e2b.dev/docs/cli) is installed and you're logged in.
 
-**Workflow Engine**: Visual workflow builder that allows chaining multiple AI operations:
-- Drag-and-drop node interface
-- Multi-step automation sequences  
-- Variable passing between nodes
-- Conditional execution paths
-- Real-time execution monitoring
+2. Add a new folder under [sandbox-templates/](sandbox-templates/)
 
-**Sandbox Management**: Secure, isolated execution environments:
-- E2B-powered sandboxes
-- Multiple runtime templates (Python, Node.js, Docker)
-- File system isolation
-- Network security controls
-- Automatic cleanup and resource management
+3. Initialize a new template using E2B CLI:
 
-**AI Orchestration**: Intelligent routing and management of LLM requests:
-- Provider failover and load balancing
-- Model-specific optimization
-- Streaming response handling
-- Usage tracking and analytics
-- Cost optimization algorithms
+    ```
+    e2b template init
+    ```
 
-### Data Architecture
+    This will create a new file called `e2b.Dockerfile`.
 
-**Database Schema** (Supabase/PostgreSQL):
-- User management and authentication
-- Project and fragment storage
-- Workflow definitions and execution history
-- Usage tracking and billing data
-- Team collaboration and permissions
+4. Adjust the `e2b.Dockerfile`
 
-**Real-time Features**:
-- Live collaboration via Supabase subscriptions
-- Real-time code execution updates
-- Shared cursors and selections
-- Instant notification system
-```
+    Here's an example streamlit template:
 
-## 🗁️ Project Structure
+    ```Dockerfile
+    # You can use most Debian-based base images
+    FROM python:3.19-slim
 
-```
-CodinIT.dev/
-├── app/                    # Next.js app router
-│   ├── api/                # API routes
-│   │   ├── chat/           # AI chat endpoints
-│   │   ├── sandbox/        # Code execution
-│   │   ├── workflows/      # Workflow management
-│   │   ├── auth/           # Authentication
-│   │   └── integrations/   # GitHub, Stripe
-│   ├── workflows/          # Workflow builder UI
-│   └── settings/           # User settings pages
-├── components/             # React components
-│   ├── ui/                 # Base UI components (shadcn)
-│   ├── workflow-builder/   # Workflow visual editor
-│   ├── fragment-*/         # Fragment system components
-│   └── deployment/         # Deployment dashboard
-├── lib/                    # Core libraries
-│   ├── models.ts           # LLM provider configurations
-│   ├── templates.json      # Sandbox templates
-│   ├── workflow-engine.ts  # Workflow execution logic
-│   ├── auth.ts             # Authentication helpers
-│   ├── database.ts         # Database operations
-│   └── prompts/            # AI prompt management
-├── sandbox-templates/      # E2B sandbox configurations
-│   ├── nextjs-developer/   # Next.js template
-│   ├── streamlit-developer/ # Streamlit template
-│   └── gradio-developer/   # Gradio template
-└── schemas/                # Database schemas
-```
+    RUN pip3 install --no-cache-dir streamlit pandas numpy matplotlib requests seaborn plotly
 
-### Key Components
+    # Copy the code to the container
+    WORKDIR /home/user
+    COPY . /home/user
+    ```
 
-- **Chat Interface** (`components/chat.tsx`): Main AI interaction component
-- **Code Editor** (`components/code-editor.tsx`): Monaco-based code editing
-- **Preview System** (`components/preview.tsx`): Live application preview
-- **Workflow Canvas** (`components/workflow-builder/`): Visual workflow editor
-- **Fragment System** (`components/fragment-*/`): Modular code components
-- **IDE Integration** (`components/ide.tsx`): Full development environment
+5. Specify a custom start command in `e2b.toml`:
 
+    ```toml
+    start_cmd = "cd /home/user && streamlit run app.py"
+    ```
+
+6. Deploy the template with the E2B CLI
+
+    ```
+    e2b template build --name <template-name>
+    ```
+
+    After the build has finished, you should get the following message:
+
+    ```
+    ✅ Building sandbox template <template-id> <template-name> finished.
+    ```
+
+7. Open [lib/templates.json](lib/templates.json) in your code editor.
+
+    Add your new template to the list. Here's an example for Streamlit:
+
+    ```json
+    "streamlit-developer": {
+      "name": "Streamlit developer",
+      "lib": [
+        "streamlit",
+        "pandas",
+        "numpy",
+        "matplotlib",
+        "request",
+        "seaborn",
+        "plotly"
+      ],
+      "file": "app.py",
+      "instructions": "A streamlit app that reloads automatically.",
+      "port": 8501 // can be null
+    },
+    ```
+
+    Provide a template id (as key), name, list of dependencies, entrypoint and a port (optional). You can also add additional instructions that will be given to the LLM.
+
+4. Optionally, add a new logo under [public/thirdparty/templates](public/thirdparty/templates)
+
+### Adding custom LLM models
+
+1. Open [lib/models.json](lib/models.ts) in your code editor.
+
+2. Add a new entry to the models list:
+
+    ```json
+    {
+      "id": "mistral-large",
+      "name": "Mistral Large",
+      "provider": "Ollama",
+      "providerId": "ollama"
+    }
+    ```
+
+    Where id is the model id, name is the model name (visible in the UI), provider is the provider name and providerId is the provider tag (see [adding providers](#adding-custom-llm-providers) below).
+
+### Adding custom LLM providers
+
+1. Open [lib/models.ts](lib/models.ts) in your code editor.
+
+2. Add a new entry to the `providerConfigs` list:
+
+    Example for fireworks:
+
+    ```ts
+    fireworks: () => createOpenAI({ apiKey: apiKey || process.env.FIREWORKS_API_KEY, baseURL: baseURL || 'https://api.fireworks.ai/inference/v1' })(modelNameString),
+    ```
+
+3. Optionally, adjust the default structured output mode in the `getDefaultMode` function:
+
+    ```ts
+    if (providerId === 'fireworks') {
+      return 'json'
+    }
+    ```
+
+4. Optionally, add a new logo under [public/thirdparty/logos](public/thirdparty/logos)
+
+## Contributing
+
+As an open-source project, we welcome contributions from the community. If you are experiencing any bugs or want to add some improvements, please feel free to open an issue or pull request.
 ## 🔧 Customize
 
 ### Adding Custom Development Templates
@@ -535,7 +454,7 @@ We welcome contributions to CodinIT.dev! Please see our contributing guidelines:
 - **Community**: Join our Discord server
 - **Email**: Contact team@codinit.dev
 
-## 📜 License
+## 📜 Apache 2.0 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
