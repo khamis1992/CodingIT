@@ -1,33 +1,33 @@
 'use client'
 
-import { ViewType } from '@/components/auth'
-import { AuthDialog } from '@/components/auth-dialog'
-import { Chat } from '@/components/chat'
-import { ChatInput } from '@/components/chat-input'
-import { ChatPicker } from '@/components/chat-picker'
-import { ChatSettings } from '@/components/chat-settings'
-import { NavBar } from '@/components/navbar'
-import { Preview } from '@/components/preview'
-import { Sidebar } from '@/components/sidebar'
-import { useAuth } from '@/lib/auth'
-import { Project, createProject, saveMessage, getProjectMessages, generateProjectTitle, getProject } from '@/lib/database'
-import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages'
-import { LLMModelConfig } from '@/lib/models'
-import modelsList from '@/lib/models.json'
-import { FragmentSchema, fragmentSchema as schema } from '@/lib/schema'
-import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
-import templates, { TemplateId } from '@/lib/templates'
-import { ExecutionResult } from '@/lib/types'
-import { cn } from '@/lib/utils'
-import { DeepPartial } from 'ai'
-import { experimental_useObject as useObject } from 'ai/react'
-import { usePostHog } from 'posthog-js/react'
-import { SetStateAction, useCallback, useEffect, useState } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
-import { useEnhancedChat } from '@/hooks/use-enhanced-chat'
-import { useUserTeam } from '@/lib/user-team-provider'
-import { HeroPillSecond } from '@/components/announcement'
-import { useAnalytics } from '@/lib/analytics-service'
+import { ViewType } from '@/components/auth';
+import { AuthDialog } from '@/components/auth-dialog';
+import { Chat } from '@/components/chat';
+import { ChatInput } from '@/components/chat-input';
+import { ChatPicker } from '@/components/chat-picker';
+import { ChatSettings } from '@/components/chat-settings';
+import { NavBar } from '@/components/navbar';
+import { Preview } from '@/components/preview';
+import { Sidebar } from '@/components/sidebar';
+import { useAuth } from '@/lib/auth';
+import { Project, createProject, saveMessage, getProjectMessages, generateProjectTitle, getProject } from '@/lib/database';
+import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages';
+import { LLMModelConfig } from '@/lib/models';
+import modelsList from '@/lib/models.json';
+import { FragmentSchema, fragmentSchema as schema } from '@/lib/schema';
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import templates, { TemplateId } from '@/lib/templates';
+import { ExecutionResult } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { DeepPartial } from 'ai';
+import { experimental_useObject as useObject } from '@ai-sdk/react';
+import { usePostHog } from 'posthog-js/react';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import { useUserTeam } from '@/lib/user-team-provider';
+import { HeroPillSecond } from '@/components/announcement';
+import { useAnalytics } from '@/lib/analytics-service';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export default function Home() {
   const supabase = createSupabaseBrowserClient()
@@ -49,12 +49,12 @@ export default function Home() {
   const [fragmentsGenerated, setFragmentsGenerated] = useState(0)
   const [messagesCount, setMessagesCount] = useState(0)
   const [errorsEncountered, setErrorsEncountered] = useState(0)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [fragment, setFragment] = useState<DeepPartial<FragmentSchema>>()
-  const [currentTab, setCurrentTab] = useState<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>('code')
-  const [selectedFile, setSelectedFile] = useState<{ path: string; content: string } | null>(null)
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false)
-  const [isAuthDialogOpen, setAuthDialog] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [fragment, setFragment] = useState<DeepPartial<FragmentSchema>>();
+  const [currentTab, setCurrentTab] = useState<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>('code');
+  const [selectedFile] = useState<{ path: string; content: string } | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [isAuthDialogOpen, setAuthDialog] = useState(false);
   const [authView, setAuthView] = useState<ViewType>('sign_in')
   const [isRateLimited, setIsRateLimited] = useState(false)
   const setAuthDialogCallback = useCallback((isOpen: boolean) => {
@@ -65,7 +65,6 @@ export default function Home() {
     setAuthView(view)
   }, [setAuthView])
   const [errorMessage, setErrorMessage] = useState('')
-  const [executionResult, setExecutionResult] = useState<ExecutionResult | undefined>(undefined)
   
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [isLoadingProject, setIsLoadingProject] = useState(false)
@@ -73,14 +72,6 @@ export default function Home() {
   const { session } = useAuth(setAuthDialogCallback, setAuthViewCallback)
   const { userTeam } = useUserTeam()
 
-
-  const { executeCode: enhancedExecuteCode } = useEnhancedChat({
-    userID: session?.user?.id,
-    teamID: userTeam?.id,
-    model: modelsList.models.find(m => m.id === languageModel.model)!,
-    config: languageModel,
-    template: templates,
-  })
 
   const handleChatSelected = async (chatId: string) => {
     const project = await getProject(supabase, chatId);
@@ -98,17 +89,17 @@ export default function Home() {
 
   const currentModel = filteredModels.find(
     (model) => model.id === languageModel.model,
-  )
-  const lastMessage = messages[messages.length - 1]
+  );
 
 
   const { object, submit, isLoading, stop, error } = useObject({
     api: '/api/chat',
     schema,
-    onError: (error) => {
-      console.error('Error submitting request:', error)
+    onError: (error: Error) => {
+      setErrorsEncountered(prev => prev + 1)
+      console.error('Error submitting request:', error);
       
-      let displayMessage = error.message
+      let displayMessage = error.message;
       let isRateLimit = false
       
       // Try to parse structured error response
@@ -134,20 +125,19 @@ export default function Home() {
         // Use original error message if parsing fails
       }
       
-      setIsRateLimited(isRateLimit)
-      setErrorMessage(displayMessage)
+      setIsRateLimited(isRateLimit);
+      setErrorMessage(displayMessage);
     },
-    onFinish: async ({ object: fragment, error }) => {
-      if (!error) {
-        setIsPreviewLoading(true)
+    onFinish: async ({ object: fragment, error }: { object: DeepPartial<FragmentSchema> | undefined, error: any }) => {
+      if (!error && fragment) {
+        setIsPreviewLoading(true);
         // Enhanced analytics tracking
         const generationTime = Date.now() - Date.now() // Would track actual generation time
-        if (fragment) {
-          analytics.trackFragmentGenerated(fragment, generationTime, 1)
+        if (fragment.code && fragment.template) {
+          analytics.trackFragmentGenerated(fragment as FragmentSchema, generationTime, 1)
         }
         setFragmentsGenerated(prev => prev + 1)
         
-        // Additional revenue tracking handled by analytics service
         
         posthog.capture('fragment_generated', {
           template: fragment?.template,
@@ -451,31 +441,6 @@ export default function Home() {
     setCurrentPreview({ fragment: undefined, result: undefined })
   }
 
-  const executeCode = async (code: string) => {
-    const startTime = Date.now()
-    const result = await enhancedExecuteCode(code)
-    const executionTime = Date.now() - startTime
-    
-    // Enhanced execution tracking
-    if (session?.user?.id) {
-      analytics.trackCodeExecution(
-        `exec_${Date.now()}`,
-        selectedTemplate === 'auto' ? 'unknown' : selectedTemplate,
-        executionTime,
-        !result.error,
-        result.error ? 'execution_error' : undefined
-      )
-      
-      // Revenue tracking handled by analytics service
-      
-      if (result.error) {
-        setErrorsEncountered(prev => prev + 1)
-      }
-    }
-    
-    setExecutionResult(result)
-  }
-
   return (
     <main className="flex min-h-screen max-h-screen">
       {supabase && (
@@ -483,7 +448,7 @@ export default function Home() {
           open={isAuthDialogOpen}
           setOpen={setAuthDialog}
           view={authView}
-          supabase={supabase}
+          supabase={supabase as unknown as SupabaseClient<any, "public", "public">}
         />
       )}
 
@@ -525,7 +490,6 @@ export default function Home() {
               messages={messages}
               isLoading={isLoading}
               setCurrentPreview={setCurrentPreview}
-              executeCode={executeCode}
             />
           )}
           
@@ -567,12 +531,13 @@ export default function Home() {
           isChatLoading={isLoading}
           isPreviewLoading={isPreviewLoading}
           fragment={fragment}
-          result={executionResult || result as ExecutionResult}
+          result={result as ExecutionResult}
           onClose={() => setFragment(undefined)}
           code={fragment?.code || ''}
-          executeCode={executeCode}
-          selectedFile={selectedFile} onSave={function (path: string, content: string): void {
-            throw new Error('Function not implemented.')
+          selectedFile={selectedFile} onSave={function (): void {
+            throw new Error('Function not implemented.');
+          } } executeCode={function (): Promise<void> {
+            throw new Error('Function not implemented.');
           } }        />
       </div>
     </main>

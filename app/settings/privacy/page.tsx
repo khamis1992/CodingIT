@@ -23,8 +23,8 @@ import { useUserTeam } from '@/lib/user-team-provider'
 import { 
   getUserPreferences, 
   updateUserPreferences,
-  UserPreferences
 } from '@/lib/user-settings'
+import { UserPreferences } from '@/lib/database.types'
 
 interface PrivacySettings {
   analytics_enabled: boolean

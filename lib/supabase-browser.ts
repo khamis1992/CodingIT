@@ -1,6 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { Database } from './database.types'
 
-let supabaseClient: ReturnType<typeof createBrowserClient> | null = null
+let supabaseClient: ReturnType<typeof createBrowserClient<Database>> | null = null
 
 export function createSupabaseBrowserClient() {
     if (typeof window === 'undefined') {
@@ -21,6 +22,6 @@ export function createSupabaseBrowserClient() {
         throw new Error('Supabase URL and Anon Key are required')
     }
     
-    supabaseClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
+    supabaseClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
     return supabaseClient
 }

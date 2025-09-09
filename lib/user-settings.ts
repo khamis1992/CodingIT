@@ -1,62 +1,14 @@
 import { createSupabaseBrowserClient } from './supabase-browser'
+import {
+  UserProfile,
+  UserPreferences,
+  UserIntegration,
+  UserSecuritySettings
+} from './database.types'
 
 // Lazy getter for supabase instance
 function getSupabase() {
   return createSupabaseBrowserClient()
-}
-
-export interface UserProfile {
-  id: string
-  user_id: string
-  full_name?: string
-  display_name?: string
-  first_name?: string
-  last_name?: string
-  work_description?: string
-  avatar_url?: string
-  onboarding_completed?: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface UserPreferences {
-  id: string
-  user_id: string
-  ai_assistance: boolean
-  smart_suggestions: boolean
-  theme: 'light' | 'dark' | 'system'
-  font_family: 'inter' | 'jetbrains-mono' | 'cal-sans'
-  email_notifications: boolean
-  marketing_emails: boolean
-  security_alerts: boolean
-  analytics_enabled?: boolean
-  data_sharing_enabled?: boolean
-  telemetry_enabled?: boolean
-  auto_template?: string
-  created_at: string
-  updated_at: string
-}
-
-export interface UserIntegration {
-  id: string
-  user_id: string
-  service_name: string
-  is_connected: boolean
-  connection_data?: Record<string, any>
-  last_sync_at?: string
-  created_at: string
-  updated_at: string
-}
-
-export interface UserSecuritySettings {
-  id: string
-  user_id: string
-  two_factor_enabled: boolean
-  backup_codes?: string[]
-  last_password_change?: string
-  login_notifications?: boolean
-  created_at: string
-  updated_at: string
 }
 
 // Cache to prevent excessive API calls

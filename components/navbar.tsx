@@ -20,8 +20,9 @@ import {
 import { Session } from '@supabase/supabase-js'
 import { ArrowRight, LogOut, Trash, Undo, Settings, Menu } from 'lucide-react'
 import Link from 'next/link'
-import Icon from './logo'
+import Image from 'next/image'
 import { HeroPillSecond } from './announcement'
+import { ThemeToggle } from './theme-toggle'
 
 export function NavBar({
   session,
@@ -88,6 +89,7 @@ export function NavBar({
             <TooltipContent>Clear chat</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        <ThemeToggle />
         {session ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -110,10 +112,12 @@ export function NavBar({
                   window.open('https://codinit.dev/blog/codinit-beta', '_blank')
                 }}
               >
-                <Icon
+                <Image
+                  src="/icon.png"
                   width={16}
                   height={16}
                   className="mr-2 text-muted-foreground"
+                  alt={''}
                 />
                 About CodinIT
               </DropdownMenuItem>

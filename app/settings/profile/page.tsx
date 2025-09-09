@@ -19,11 +19,11 @@ import { useState, useEffect } from 'react'
 import { useAuthContext } from '@/lib/auth-provider'
 import { 
   getUserProfile, 
-  getUserPreferences, 
   updateUserProfile, 
   updateUserPreferences,
-  UserPreferences
+  getUserPreferences
 } from '@/lib/user-settings'
+import { UserPreferences } from '@/lib/database.types'
 
 export default function ProfileSettings() {
   const { session } = useAuthContext()

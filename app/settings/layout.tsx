@@ -21,11 +21,6 @@ const settingsNavigation = [
     icon: User,
   },
   {
-    name: 'Appearance',
-    href: '/settings/appearance', 
-    icon: Palette,
-  },
-  {
     name: 'Account',
     href: '/settings/account',
     icon: SettingsIcon,

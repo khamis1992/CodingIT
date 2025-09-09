@@ -9,7 +9,6 @@
 ### Settings Pages
 - `app/settings/profile/page.tsx` - Profile management (name, work description, feature toggles)
 - `app/settings/account/page.tsx` - Account security (email, password, 2FA, notifications) 
-- `app/settings/appearance/page.tsx` - Theme and font preferences
 - `app/settings/integrations/page.tsx` - Connected services management
 - `app/settings/billing/page.tsx` - Subscription and payment management
 - `app/settings/privacy/page.tsx` - Data privacy controls and information

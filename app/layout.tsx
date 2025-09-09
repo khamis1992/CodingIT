@@ -7,12 +7,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import Script from 'next/script'
-import { validateEnvironmentOnStartup } from '@/lib/env-validation'
 
-// Validate environment variables on startup
-if (typeof window === 'undefined') {
-  validateEnvironmentOnStartup()
-}
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://codingit.vercel.app'),
@@ -85,7 +80,7 @@ export default function RootLayout({
     <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          forcedTheme="dark"
+          enableSystem
           disableTransitionOnChange
         >
           <PostHogProvider>

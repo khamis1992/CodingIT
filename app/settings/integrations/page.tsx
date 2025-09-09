@@ -21,8 +21,8 @@ import {
   getUserIntegrations, 
   upsertUserIntegration, 
   disconnectUserIntegration,
-  UserIntegration
 } from '@/lib/user-settings'
+import { UserIntegration } from '@/lib/database.types'
 
 const availableIntegrations = [
   {

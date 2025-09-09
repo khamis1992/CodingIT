@@ -1,17 +1,14 @@
 import { Message } from '@/lib/messages'
 import { FragmentSchema } from '@/lib/schema'
-import { ExecutionResult, ExecutionResultInterpreter } from '@/lib/types'
+import { ExecutionResult } from '@/lib/types'
 import { DeepPartial } from 'ai'
 import { LoaderIcon, Terminal } from 'lucide-react'
-import Image from 'next/image'
 import { useEffect } from 'react'
-import { FragmentInterpreter } from './fragment-interpreter'
 
 export function Chat({
   messages,
   isLoading,
   setCurrentPreview,
-  executeCode,
 }: {
   messages: Message[]
   isLoading: boolean
@@ -19,15 +16,13 @@ export function Chat({
     fragment: DeepPartial<FragmentSchema> | undefined
     result: ExecutionResult | undefined
   }) => void
-  executeCode: (code: string) => Promise<void>
 }) {
-  const messagesString = JSON.stringify(messages)
   useEffect(() => {
     const chatContainer = document.getElementById('chat-container')
     if (chatContainer) {
       chatContainer.scrollTop = chatContainer.scrollHeight
     }
-  }, [messagesString])
+  }, [JSON.stringify(messages)])
 
   return (
     <div
@@ -45,18 +40,16 @@ export function Chat({
             }
             if (content.type === 'image') {
               return (
-                <Image
+                <img
                   key={id}
                   src={content.image}
                   alt="fragment"
-                  width={48}
-                  height={48}
                   className="mr-2 inline-block w-12 h-12 object-cover rounded-lg bg-white mb-2"
                 />
               )
             }
           })}
-          {message.object && message.object.template !== 'code-interpreter-v1' && (
+          {message.object && (
             <div
               onClick={() =>
                 setCurrentPreview({
@@ -78,13 +71,6 @@ export function Chat({
                 </span>
               </div>
             </div>
-          )}
-          {message.object && message.object.template === 'code-interpreter-v1' && (
-            <FragmentInterpreter
-              result={message.result as ExecutionResultInterpreter}
-              code={message.object.code || ''}
-              executeCode={executeCode}
-            />
           )}
         </div>
       ))}
