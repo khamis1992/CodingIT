@@ -3,7 +3,7 @@
 import { ViewType } from '@/components/auth';
 import { AuthDialog } from '@/components/auth-dialog';
 import { Chat } from '@/components/chat';
-import { ChatInput } from '@/components/chat-input';
+import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { ChatPicker } from '@/components/chat-picker';
 import { ChatSettings } from '@/components/chat-settings';
 import { NavBar } from '@/components/navbar';
@@ -31,8 +31,6 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 export default function Home() {
   const supabase = createSupabaseBrowserClient()
-  const [chatInput, setChatInput] = useLocalStorage('chat', '')
-  const [files, setFiles] = useState<File[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<'auto' | TemplateId>('auto')
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     'languageModel',
@@ -269,9 +267,7 @@ export default function Home() {
     })
   }
 
-  async function handleSubmitAuth(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-
+  async function handleSendPrompt(message: string, files: File[] = []) {
     if (!session) {
       return setAuthDialog(true)
     }
@@ -280,10 +276,8 @@ export default function Home() {
       stop()
     }
 
-    const currentInput = chatInput
-    const currentFiles = [...files]
-    setChatInput('')
-    setFiles([])
+    const currentInput = message
+    const currentFiles = files
     setCurrentTab('code')
 
     const content: Message['content'] = [{ type: 'text', text: currentInput }]
@@ -368,16 +362,6 @@ export default function Home() {
     })
   }
 
-  const handleSaveInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setChatInput(e.target.value)
-    },
-    [setChatInput],
-  )
-
-  const handleFileChange = useCallback((change: SetStateAction<File[]>) => {
-    setFiles(change)
-  }, [])
 
   function logout() {
     if (supabase) {
@@ -406,8 +390,6 @@ export default function Home() {
       window.open('https://github.com/Gerome-Elassaad/CodingIT', '_blank')
     } else if (target === 'x') {
       window.open('https://x.com/codinit_dev', '_blank')
-    } else if (target === 'discord') {
-      window.open('https://discord.gg/', '_blank')
     }
 
     // Enhanced social tracking
@@ -418,8 +400,6 @@ export default function Home() {
 
   function handleClearChat() {
     stop()
-    setChatInput('')
-    setFiles([])
     setMessages([])
     setFragment(undefined)
     setResult(undefined)
@@ -464,7 +444,7 @@ export default function Home() {
         session ? "ml-16" : ""
       )}>
         <div
-          className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${fragment ? 'col-span-1' : 'col-span-2'}`}
+          className={`flex flex-col w-full h-screen max-w-[800px] mx-auto px-4 ${fragment ? 'col-span-1' : 'col-span-2'}`}
         >
           <NavBar
             session={session}
@@ -481,47 +461,45 @@ export default function Home() {
             <HeroPillSecond />
           </div>
 
-          {isLoadingProject ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-muted-foreground">Loading project...</div>
-            </div>
-          ) : (
-            <Chat
-              messages={messages}
-              isLoading={isLoading}
-              setCurrentPreview={setCurrentPreview}
-            />
-          )}
+          <div className="flex-grow overflow-y-auto">
+            {isLoadingProject ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-muted-foreground">Loading project...</div>
+              </div>
+            ) : (
+              <Chat
+                messages={messages}
+                isLoading={isLoading}
+                setCurrentPreview={setCurrentPreview}
+              />
+            )}
+          </div>
           
-          <ChatInput
-            retry={retry}
-            isErrored={error !== undefined}
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            isRateLimited={isRateLimited}
-            stop={stop}
-            input={chatInput}
-            handleInputChange={handleSaveInputChange}
-            handleSubmit={handleSubmitAuth}
-            isMultiModal={currentModel?.multiModal || false}
-            files={files}
-            handleFileChange={handleFileChange}
-           >
-            <ChatPicker
-              templates={templates}
-              selectedTemplate={selectedTemplate}
-              onSelectedTemplateChange={setSelectedTemplate}
-              models={filteredModels}
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-            />
-            <ChatSettings
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-              apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
-              baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
-            />
-          </ChatInput>
+          <div className="space-y-4 mt-4">
+            {error && (
+              <div className="flex items-center justify-between p-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+                <span>{errorMessage}</span>
+                <button onClick={retry} className="ml-4 p-1 rounded-md hover:bg-red-500/20">Retry</button>
+              </div>
+            )}
+            {isLoading && (
+              <div className="flex items-center justify-between p-2">
+                <span className="text-muted-foreground">Generating response...</span>
+                <button onClick={stop} className="ml-4 p-1 rounded-md border">Stop</button>
+              </div>
+            )}
+              <PromptInputBox
+                onSend={handleSendPrompt}
+                templates={templates}
+                selectedTemplate={selectedTemplate}
+                onSelectedTemplateChange={setSelectedTemplate}
+                models={filteredModels}
+                languageModel={languageModel}
+                onLanguageModelChange={handleLanguageModelChange}
+                apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
+                baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
+              />
+          </div>
         </div>
           <Preview
           teamID={userTeam?.id}
@@ -538,7 +516,8 @@ export default function Home() {
             throw new Error('Function not implemented.');
           } } executeCode={function (): Promise<void> {
             throw new Error('Function not implemented.');
-          } }        />
+          } }        
+          />
       </div>
     </main>
   )

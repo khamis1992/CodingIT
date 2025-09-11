@@ -117,22 +117,7 @@ export function IDE() {
   async function handleImportRepository(repo: any, repoFiles: any[]) {
     if (!session) return
     try {
-      // Import each file from the repository
-      for (const file of repoFiles) {
-        await fetch('/api/files/content', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sessionID: session.user.id,
-            path: `/${repo.name}/${file.path}`,
-            content: file.content,
-          }),
-        })
-      }
-      
-      // Refresh the file tree
+      // The backend now handles file imports. We just need to refresh the file list.
       await fetchFiles()
       setShowGitHubImport(false)
     } catch (error) {
