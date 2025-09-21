@@ -97,8 +97,8 @@ export interface FragmentExecution {
   user_id: string
   execution_status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
   sandbox_id?: string
-  input_data?: Record<string, any>
-  output_data?: Record<string, any>
+  input_data?: Json
+  output_data?: Json
   error_message?: string
   execution_time_ms?: number
   created_at: string
