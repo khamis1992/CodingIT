@@ -110,8 +110,8 @@ export interface DbMessage {
   project_id: string
   role: 'user' | 'assistant'
   content: Json
-  object_data?: any
-  result_data?: any
+  object_data?: Json
+  result_data?: Json
   sequence_number: number
   created_at: string
 }
