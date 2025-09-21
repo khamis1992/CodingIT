@@ -60,6 +60,203 @@ export interface UserSecuritySettings {
   updated_at: string
 }
 
+export interface Project {
+  id: string
+  user_id: string
+  team_id?: string
+  title: string
+  description?: string
+  template_id?: string
+  status: 'active' | 'archived' | 'deleted'
+  is_public: boolean
+  metadata?: Record<string, any>
+  created_at: string
+  updated_at: string
+  deleted_at?: string
+}
+
+export interface Fragment {
+  id: string
+  user_id: string
+  project_id?: string
+  title: string
+  description?: string
+  code: string
+  language: string
+  template_id?: string
+  is_public: boolean
+  tags?: string[]
+  metadata?: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface FragmentExecution {
+  id: string
+  fragment_id: string
+  user_id: string
+  execution_status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+  sandbox_id?: string
+  input_data?: Record<string, any>
+  output_data?: Record<string, any>
+  error_message?: string
+  execution_time_ms?: number
+  created_at: string
+  updated_at: string
+}
+
+export interface DbMessage {
+  id: string
+  project_id: string
+  role: 'user' | 'assistant'
+  content: Json
+  object_data?: any
+  result_data?: any
+  sequence_number: number
+  created_at: string
+}
+
+export interface Team {
+  id: string
+  name: string
+  email?: string
+  tier: 'free' | 'pro' | 'enterprise'
+  stripe_customer_id?: string
+  stripe_subscription_id?: string
+  subscription_status: 'active' | 'canceled' | 'past_due' | 'unpaid' | 'incomplete'
+  current_period_start?: string
+  current_period_end?: string
+  cancel_at_period_end: boolean
+}
+
+export interface UsersTeams {
+  user_id: string
+  team_id: string
+  is_default: boolean
+}
+
+export interface TeamUsageLimit {
+  team_id: string
+  usage_type: 'github_imports' | 'storage_mb' | 'execution_time_seconds' | 'api_calls'
+  limit_value: number
+  current_usage: number
+  period_start: string
+  period_end: string
+}
+
+export interface UserUsage {
+  id: string
+  user_id: string
+  team_id: string
+  usage_type: 'github_imports' | 'storage_mb' | 'execution_time_seconds' | 'api_calls'
+  usage_count: number
+  metadata?: Json
+  created_at: string
+}
+
+export interface ConversationThread {
+  id: string
+  title: string
+  description?: string
+  created_by: string
+  project_id?: string
+  is_public: boolean
+  metadata?: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface ThreadMessage {
+  id: string
+  thread_id: string
+  sender_id: string
+  content: string
+  message_type: 'text' | 'code' | 'file' | 'image'
+  metadata?: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface ThreadSummary {
+  id: string
+  thread_id: string
+  title: string
+  description?: string
+  participant_count: number
+  message_count: number
+  last_message_id?: string
+  last_activity_at: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ChatSession {
+  id: string;
+  session_id: string
+  user_id: string
+  team_id?: string
+  created_at: string
+  last_activity: string
+  message_count: number
+  title?: string
+  tags?: string[]
+  model?: string
+  template?: string
+  status: 'active' | 'archived' | 'deleted'
+  updated_at: string
+}
+
+export interface ChatMessageCache {
+  id: string;
+  session_id: string
+  message_id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  created_at: string
+  model?: string
+  template?: string
+  token_count?: number
+  execution_time_ms?: number
+}
+
+export interface ApiKey {
+  id: string
+  user_id: string
+  name: string
+  key_hash: string
+  key_prefix: string
+  permissions: string[]
+  last_used_at?: string
+  expires_at?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface FileUpload {
+  id: string
+  user_id: string
+  project_id?: string
+  filename: string
+  file_path: string
+  file_url: string
+  file_size: number
+  mime_type: string
+  description?: string
+  upload_status: 'pending' | 'uploading' | 'completed' | 'failed'
+  created_at: string
+  updated_at: string
+}
+
+export interface SubscriptionEvent {
+  id: string
+  team_id: string
+  stripe_event_id: string
+  event_type: string
+  event_data: Json
+  processed_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -82,6 +279,86 @@ export type Database = {
         Row: UserSecuritySettings;
         Insert: Omit<UserSecuritySettings, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<UserSecuritySettings>;
+      };
+      projects: {
+        Row: Project;
+        Insert: Omit<Project, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Project>;
+      };
+      fragments: {
+        Row: Fragment;
+        Insert: Omit<Fragment, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Fragment>;
+      };
+      fragment_executions: {
+        Row: FragmentExecution;
+        Insert: Omit<FragmentExecution, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<FragmentExecution>;
+      };
+      messages: {
+        Row: DbMessage;
+        Insert: Omit<DbMessage, 'id' | 'created_at'>;
+        Update: Partial<DbMessage>;
+      };
+      teams: {
+        Row: Team;
+        Insert: Omit<Team, 'id'>;
+        Update: Partial<Team>;
+      };
+      users_teams: {
+        Row: UsersTeams;
+        Insert: UsersTeams;
+        Update: Partial<UsersTeams>;
+      };
+      team_usage_limits: {
+        Row: TeamUsageLimit;
+        Insert: TeamUsageLimit;
+        Update: Partial<TeamUsageLimit>;
+      };
+      user_usage: {
+        Row: UserUsage;
+        Insert: Omit<UserUsage, 'id' | 'created_at'>;
+        Update: Partial<UserUsage>;
+      };
+      conversation_threads: {
+        Row: ConversationThread;
+        Insert: Omit<ConversationThread, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ConversationThread>;
+      };
+      thread_messages: {
+        Row: ThreadMessage;
+        Insert: Omit<ThreadMessage, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ThreadMessage>;
+      };
+      thread_summaries: {
+        Row: ThreadSummary;
+        Insert: Omit<ThreadSummary, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ThreadSummary>;
+      };
+      chat_sessions: {
+        Row: ChatSession;
+        Insert: Omit<ChatSession, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ChatSession>;
+      };
+      chat_message_cache: {
+        Row: ChatMessageCache;
+        Insert: Omit<ChatMessageCache, 'id' | 'created_at'>;
+        Update: Partial<ChatMessageCache>;
+      };
+      file_uploads: {
+        Row: FileUpload;
+        Insert: Omit<FileUpload, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<FileUpload>;
+      };
+      api_keys: {
+        Row: ApiKey;
+        Insert: Omit<ApiKey, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ApiKey>;
+      };
+      subscription_events: {
+        Row: SubscriptionEvent;
+        Insert: Omit<SubscriptionEvent, 'id' | 'processed_at'>;
+        Update: Partial<SubscriptionEvent>;
       };
     };
     Views: {
