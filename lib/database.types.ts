@@ -86,7 +86,7 @@ export interface Fragment {
   template_id?: string
   is_public: boolean
   tags?: string[]
-  metadata?: Record<string, any>
+  metadata?: Json
   created_at: string
   updated_at: string
 }
