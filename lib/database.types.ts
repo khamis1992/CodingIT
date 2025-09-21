@@ -191,7 +191,7 @@ export interface ThreadSummary {
 }
 
 export interface ChatSession {
-  id: string;
+  id: string
   session_id: string
   user_id: string
   team_id?: string
