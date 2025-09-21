@@ -207,7 +207,7 @@ export interface ChatSession {
 }
 
 export interface ChatMessageCache {
-  id: string;
+  id: string
   session_id: string
   message_id: string
   role: 'user' | 'assistant' | 'system'
