@@ -69,7 +69,7 @@ export interface Project {
   template_id?: string
   status: 'active' | 'archived' | 'deleted'
   is_public: boolean
-  metadata?: Record<string, any>
+  metadata?: Json
   created_at: string
   updated_at: string
   deleted_at?: string
