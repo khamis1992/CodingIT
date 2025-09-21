@@ -172,7 +172,7 @@ export interface ThreadMessage {
   sender_id: string
   content: string
   message_type: 'text' | 'code' | 'file' | 'image'
-  metadata?: Record<string, any>
+  metadata?: Json
   created_at: string
   updated_at: string
 }
