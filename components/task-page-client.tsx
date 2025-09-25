@@ -1,0 +1,66 @@
+'use client'
+
+import { useTask } from '@/hooks/use-task'
+import { TaskDetails } from '@/components/task-details'
+import { TaskPageHeader } from '@/components/task-page-header'
+import { Card, CardContent } from '@/components/ui/card'
+
+interface TaskPageClientProps {
+  taskId: string
+}
+
+export function TaskPageClient({ taskId }: TaskPageClientProps) {
+  const { task, isLoading, error } = useTask(taskId)
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 bg-background">
+        <div className="mx-auto p-3">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="max-w-4xl mx-auto space-y-6">
+                {/* Task Info Skeleton - 339px height */}
+                <Card className="h-[339px]">
+                  <CardContent className="space-y-4"></CardContent>
+                </Card>
+
+                {/* Logs Skeleton - 512px height */}
+                <Card className="h-[512px]">
+                  <CardContent></CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !task) {
+    return (
+      <div className="flex-1 bg-background">
+        <div className="mx-auto p-3">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold mb-2">Task Not Found</h2>
+              <p className="text-muted-foreground">{error || 'The requested task could not be found.'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex-1 bg-background">
+      <div className="mx-auto p-3">
+        <TaskPageHeader task={task} />
+
+        {/* Task details */}
+        <div className="max-w-4xl mx-auto">
+          <TaskDetails task={task} />
+        </div>
+      </div>
+    </div>
+  )
+}
