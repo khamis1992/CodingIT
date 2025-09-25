@@ -31,11 +31,6 @@ const settingsNavigation = [
     icon: Shield,
   },
   {
-    name: 'Billing',
-    href: '/settings/billing',
-    icon: CreditCard,
-  },
-  {
     name: 'Integrations',
     href: '/settings/integrations',
     icon: Plug,
