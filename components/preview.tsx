@@ -56,7 +56,7 @@ export function Preview({
   useEffect(() => {
     const fetchTemplateFiles = async () => {
       if (result?.template) {
-        const files = await getTemplateFiles(result.template, fragment?.code)
+        const files = await getTemplateFiles(result.template, fragment?.code, false)
         setTemplateFiles(files)
       } else {
         setTemplateFiles([{ name: 'code.tsx', content: fragment?.code ?? '' }])
