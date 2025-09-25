@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TemplateId } from '@/lib/templates'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 
 export interface TemplateFile {
@@ -13,24 +13,23 @@ function getTemplateFiles(templateId: TemplateId): TemplateFile[] {
 
   try {
     const templateDir = join(process.cwd(), 'sandbox-templates', templateId)
-    const fileMappings: Record<TemplateId, string[]> = {
-      'code-interpreter-v1': ['script.py'],
-      'nextjs-developer': ['_app.tsx', 'e2b.Dockerfile', 'e2b.toml', 'compile_page.sh'],
-      'vue-developer': ['app.vue', 'e2b.Dockerfile', 'e2b.toml', 'nuxt.config.ts'],
-      'streamlit-developer': ['app.py', 'e2b.Dockerfile', 'e2b.toml'],
-      'gradio-developer': ['app.py', 'e2b.Dockerfile', 'e2b.toml']
-    }
 
-    const files = fileMappings[templateId] || []
+    // Read all files in the template directory
+    const files = readdirSync(templateDir)
 
     for (const file of files) {
       try {
         const filePath = join(templateDir, file)
-        const content = readFileSync(filePath, 'utf-8')
-        templateFiles.push({
-          name: file,
-          content
-        })
+        const stat = statSync(filePath)
+
+        // Only include files, not directories
+        if (stat.isFile()) {
+          const content = readFileSync(filePath, 'utf-8')
+          templateFiles.push({
+            name: file,
+            content
+          })
+        }
       } catch (error) {
         console.warn(`Failed to read template file ${file}:`, error)
       }
