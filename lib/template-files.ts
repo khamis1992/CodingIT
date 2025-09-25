@@ -5,7 +5,7 @@ export interface TemplateFile {
   content: string
 }
 
-export async function getTemplateFiles(templateId: TemplateId, fragmentCode?: string): Promise<TemplateFile[]> {
+export async function getTemplateFiles(templateId: TemplateId, fragmentCode?: string, includeUserCode: boolean = true): Promise<TemplateFile[]> {
   let templateFiles: TemplateFile[] = []
 
   try {
@@ -15,7 +15,7 @@ export async function getTemplateFiles(templateId: TemplateId, fragmentCode?: st
     }
     templateFiles = await response.json()
 
-    if (fragmentCode) {
+    if (fragmentCode && includeUserCode) {
       const mainFileName = getMainFileName(templateId)
       const existingIndex = templateFiles.findIndex(f => f.name === mainFileName)
       if (existingIndex >= 0) {
@@ -29,7 +29,7 @@ export async function getTemplateFiles(templateId: TemplateId, fragmentCode?: st
     }
   } catch (error) {
     console.warn(`Failed to load template files for ${templateId}:`, error)
-    if (fragmentCode) {
+    if (fragmentCode && includeUserCode) {
       templateFiles.push({
         name: getMainFileName(templateId),
         content: fragmentCode
