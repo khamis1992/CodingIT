@@ -4,8 +4,6 @@ import { ViewType } from '@/components/auth';
 import { AuthDialog } from '@/components/auth-dialog';
 import { Chat } from '@/components/chat';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
-import { ChatPicker } from '@/components/chat-picker';
-import { ChatSettings } from '@/components/chat-settings';
 import { NavBar } from '@/components/navbar';
 import { Preview } from '@/components/preview';
 import { Sidebar } from '@/components/sidebar';
@@ -22,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { DeepPartial } from 'ai';
 import { experimental_useObject as useObject } from '@ai-sdk/react';
 import { usePostHog } from 'posthog-js/react';
-import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useUserTeam } from '@/lib/user-team-provider';
 import { HeroPillSecond } from '@/components/announcement';
@@ -50,11 +48,11 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [fragment, setFragment] = useState<DeepPartial<FragmentSchema>>();
   const [currentTab, setCurrentTab] = useState<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>('code');
-  const [selectedFile] = useState<{ path: string; content: string } | null>(null);
+  const [selectedFile, setSelectedFile] = useState<{ path: string; content: string } | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [isAuthDialogOpen, setAuthDialog] = useState(false);
   const [authView, setAuthView] = useState<ViewType>('sign_in')
-  const [isRateLimited, setIsRateLimited] = useState(false)
+  const [, setIsRateLimited] = useState(false)
   const setAuthDialogCallback = useCallback((isOpen: boolean) => {
     setAuthDialog(isOpen)
   }, [setAuthDialog])
@@ -342,9 +340,7 @@ export default function Home() {
     if (selectedTemplate !== 'auto') {
       analytics.trackTemplateSelected(selectedTemplate, 'manual')
     }
-    
-    // Revenue tracking handled by analytics service
-    
+        
     posthog.capture('chat_submit', {
       template: selectedTemplate,
       model: languageModel.model,
@@ -416,9 +412,92 @@ export default function Home() {
     setResult(preview.result)
   }
 
+  async function handleSaveFile(path: string, content: string) {
+    if (!session) return
+
+    try {
+      const response = await fetch('/api/files/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionID: session.user.id,
+          path,
+          content
+        }),
+      })
+
+      if (response.ok) {
+        // Update the selected file state if it matches the saved file
+        if (selectedFile?.path === path) {
+          setSelectedFile({ path, content })
+        }
+      } else {
+        console.error('Failed to save file:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error saving file:', error)
+    }
+  }
+
+  async function handleExecuteCode(code: string): Promise<any> {
+    if (!session) {
+      throw new Error('No active session')
+    }
+
+    try {
+      const response = await fetch('/api/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          userID: session.user.id,
+          teamID: userTeam?.id,
+          accessToken: session.access_token,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Code execution failed')
+      }
+
+      const result = await response.json()
+      return result
+    } catch (error) {
+      console.error('Error executing code:', error)
+      throw error
+    }
+  }
+
   function handleUndo() {
     setMessages((previousMessages) => [...previousMessages.slice(0, -2)])
     setCurrentPreview({ fragment: undefined, result: undefined })
+  }
+
+  function handleStartNewChat() {
+    handleClearChat()
+  }
+
+  function handleSearch(query: string) {
+    // For now, just log the search query
+    // This could be enhanced to filter chat history
+    console.log('Search query:', query)
+  }
+
+  function handleGetFreeTokens() {
+    // This could open a modal for getting free tokens
+    // For now, show a simple alert
+    alert('Free tokens feature coming soon! Check back later for promotional offers.')
+  }
+
+  function handleSelectAccount() {
+    // This could open an account selection modal
+    // For now, just show the auth dialog
+    setAuthDialog(true)
   }
 
   return (
@@ -436,6 +515,11 @@ export default function Home() {
         <Sidebar
           userPlan={userTeam?.tier}
           onChatSelected={handleChatSelected}
+          onStartNewChat={handleStartNewChat}
+          onSearch={handleSearch}
+          onGetFreeTokens={handleGetFreeTokens}
+          onSelectAccount={handleSelectAccount}
+          onSignOut={logout}
         />
       )}
 
@@ -482,12 +566,6 @@ export default function Home() {
                 <button onClick={retry} className="ml-4 p-1 rounded-md hover:bg-red-500/20">Retry</button>
               </div>
             )}
-            {isLoading && (
-              <div className="flex items-center justify-between p-2">
-                <span className="text-muted-foreground">Generating response...</span>
-                <button onClick={stop} className="ml-4 p-1 rounded-md border">Stop</button>
-              </div>
-            )}
               <PromptInputBox
                 onSend={handleSendPrompt}
                 templates={templates}
@@ -512,11 +590,9 @@ export default function Home() {
           result={result as ExecutionResult}
           onClose={() => setFragment(undefined)}
           code={fragment?.code || ''}
-          selectedFile={selectedFile} onSave={function (): void {
-            throw new Error('Function not implemented.');
-          } } executeCode={function (): Promise<void> {
-            throw new Error('Function not implemented.');
-          } }        
+          selectedFile={selectedFile}
+          onSave={handleSaveFile}
+          executeCode={handleExecuteCode}        
           />
       </div>
     </main>
