@@ -193,7 +193,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => handleOpenSidebar()}
+            onClick={() => {
+              handleOpenSidebar()
+              // Focus search input after opening sidebar
+              setTimeout(() => {
+                const searchInput = document.querySelector('input[placeholder="Search"]') as HTMLInputElement
+                if (searchInput) {
+                  searchInput.focus()
+                }
+              }, 100)
+            }}
             className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Search"
           >
@@ -248,13 +257,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            asChild
+            onClick={onSelectAccount}
             className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Join Waitlist"
+            aria-label="Account"
           >
-            <a href="https://waitlist.codinit.dev" target="_blank" rel="noopener noreferrer">
-              <User className="h-5 w-5" />
-            </a>
+            <User className="h-5 w-5" />
           </Button>
           <Button
             variant="ghost"
@@ -405,7 +412,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
           >
             <User className="h-4 w-4" />
-            Select Account
+            Account Settings
           </Button>
 
           <Button
