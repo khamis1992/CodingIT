@@ -20,13 +20,9 @@ export function getLLMSection(content: string, sectionName: string): string {
   return section ? section.trim() : ''
 }
 
-/**
- * Gets template-specific instructions from the LLM guide
- */
 export function getTemplateInstructions(templateId: string): string {
   const guide = getLLMGuide()
 
-  // Find template-specific instructions section
   const sections = guide.split('====')
   const templateSection = sections.find(s =>
     s.trim().includes('TEMPLATE-SPECIFIC INSTRUCTIONS')
@@ -34,7 +30,6 @@ export function getTemplateInstructions(templateId: string): string {
 
   if (!templateSection) return ''
 
-  // Extract specific template instructions
   const templateName = templateId.replace('-', ' ').toLowerCase()
   const lines = templateSection.split('\n')
   const startIndex = lines.findIndex(line =>
