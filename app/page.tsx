@@ -7,6 +7,7 @@ import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { NavBar } from '@/components/navbar';
 import { Preview } from '@/components/preview';
 import { Sidebar } from '@/components/sidebar';
+import { PricingModal } from '@/components/pricing';
 import { useAuth } from '@/lib/auth';
 import { Project, createProject, saveMessage, getProjectMessages, generateProjectTitle, getProject } from '@/lib/database';
 import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages';
@@ -53,6 +54,8 @@ export default function Home() {
   const [isAuthDialogOpen, setAuthDialog] = useState(false);
   const [authView, setAuthView] = useState<ViewType>('sign_in')
   const [, setIsRateLimited] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
   const setAuthDialogCallback = useCallback((isOpen: boolean) => {
     setAuthDialog(isOpen)
   }, [setAuthDialog])
@@ -483,22 +486,16 @@ export default function Home() {
   }
 
   function handleSearch(query: string) {
-    // For now, just log the search query
-    // This could be enhanced to filter chat history
-    console.log('Search query:', query)
+    setSearchQuery(query)
+    // The actual filtering is handled in the Sidebar component
+    // when it receives the search query through props
   }
 
   function handleGetFreeTokens() {
-    // This could open a modal for getting free tokens
-    // For now, show a simple alert
-    alert('Free tokens feature coming soon! Check back later for promotional offers.')
+    // Open pricing modal to show subscription options and free token information
+    setIsPricingModalOpen(true)
   }
 
-  function handleSelectAccount() {
-    // This could open an account selection modal
-    // For now, just show the auth dialog
-    setAuthDialog(true)
-  }
 
   return (
     <main className="flex min-h-screen max-h-screen">
@@ -511,6 +508,11 @@ export default function Home() {
         />
       )}
 
+      <PricingModal
+        isOpen={isPricingModalOpen}
+        onClose={() => setIsPricingModalOpen(false)}
+      />
+
       {session && (
         <Sidebar
           userPlan={userTeam?.tier}
@@ -518,8 +520,8 @@ export default function Home() {
           onStartNewChat={handleStartNewChat}
           onSearch={handleSearch}
           onGetFreeTokens={handleGetFreeTokens}
-          onSelectAccount={handleSelectAccount}
           onSignOut={logout}
+          searchQuery={searchQuery}
         />
       )}
 
