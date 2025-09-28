@@ -25,6 +25,7 @@ import {
 } from '@/lib/user-settings'
 import { UserPreferences } from '@/lib/database.types'
 
+
 export default function ProfileSettings() {
   const { session } = useAuthContext()
   const { toast } = useToast()
@@ -57,8 +58,8 @@ export default function ProfileSettings() {
         }
 
         if (preferences) {
-          setAiAssistance(preferences.ai_assistance)
-          setSmartSuggestions(preferences.smart_suggestions)
+          setAiAssistance(preferences.ai_assistance ?? false)
+          setSmartSuggestions(preferences.smart_suggestions ?? false)
         }
       } catch (error) {
         console.error('Error loading user data:', error)

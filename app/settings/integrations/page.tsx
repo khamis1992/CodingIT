@@ -281,12 +281,17 @@ export default function IntegrationsSettings() {
                       <p className="text-sm text-muted-foreground">
                         {service.description}
                       </p>
-                      {isConnected && integration?.connection_data?.connected_at && (
+                      {isConnected && integration?.connection_data &&
+                       typeof integration.connection_data === 'object' &&
+                       'connected_at' in integration.connection_data && (
                         <p className="text-xs text-muted-foreground">
-                          Connected {new Date(integration.connection_data.connected_at).toLocaleDateString()}
+                          Connected {new Date(integration.connection_data.connected_at as string).toLocaleDateString()}
                         </p>
                       )}
-                      {integration?.connection_data?.simulated && (
+                      {integration?.connection_data &&
+                       typeof integration.connection_data === 'object' &&
+                       'simulated' in integration.connection_data &&
+                       integration.connection_data.simulated && (
                         <p className="text-xs text-yellow-600">
                           Simulated connection
                         </p>

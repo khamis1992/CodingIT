@@ -32,7 +32,6 @@ interface PrivacySettings {
   data_sharing: boolean
   activity_tracking: boolean
   personalization: boolean
-  telemetry_enabled: boolean
 }
 
 export default function PrivacySettings() {
@@ -47,8 +46,7 @@ export default function PrivacySettings() {
     marketing_emails: false,
     data_sharing: false,
     activity_tracking: true,
-    personalization: true,
-    telemetry_enabled: false
+    personalization: true
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -70,7 +68,6 @@ export default function PrivacySettings() {
             data_sharing: preferences.data_sharing_enabled ?? false,
             activity_tracking: true,
             personalization: preferences.ai_assistance ?? true,
-            telemetry_enabled: preferences.telemetry_enabled ?? false
           })
         }
       } catch (error) {
@@ -110,9 +107,6 @@ export default function PrivacySettings() {
           updateData.ai_assistance = value
           break
         case 'activity_tracking':
-          break
-        case 'telemetry_enabled':
-          updateData.telemetry_enabled = value
           break
       }
 
@@ -440,8 +434,8 @@ export default function PrivacySettings() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Switch
-                    checked={privacySettings.telemetry_enabled}
-                    onCheckedChange={(checked: boolean) => handleUpdateSetting('telemetry_enabled', checked)}
+                    checked={privacySettings.analytics_enabled}
+                    onCheckedChange={(checked: boolean) => handleUpdateSetting('analytics_enabled', checked)}
                     disabled={isUpdating || isFreeUser}
                   />
                 </TooltipTrigger>
