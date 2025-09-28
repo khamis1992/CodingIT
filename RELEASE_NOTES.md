@@ -1,6 +1,28 @@
 # Release Notes
 
-## Version 0.2.2 - Telemetry API Refactor 🚀
+## Version 0.9.1 - GitHub API Integration Fix
+
+**Release Date:** September 29, 2025
+
+### GitHub API Integration
+
+This release fixes the GitHub import functionality by integrating with existing GitHub API routes instead of missing integration endpoints.
+
+#### API Integration Updates
+- Updated GitHub import component to use existing /api/github/ routes
+- Modified repository fetching to call /api/github/user, /api/github/repos, and /api/github/orgs
+- Created new /api/github/repos/[owner]/[repo] endpoint for repository content access
+- Fixed repository loading to support both user and organization repositories
+- Restored file fetching functionality using GitHub Contents API
+- Maintained compatibility with existing TypeScript interfaces and error handling
+
+#### Technical Improvements
+- Replaced missing /api/integrations/github/* endpoints with functional alternatives
+- Added proper pagination and sorting support for repository lists
+- Implemented content encoding handling for file downloads
+- Enhanced error handling for GitHub API responses
+
+## Version 0.2.2 - Telemetry API Refactor
 
 **Release Date:** August 27, 2025
 

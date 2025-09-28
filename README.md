@@ -364,70 +364,6 @@ As an open-source project, we welcome contributions from the community. If you a
 
     Place SVG logo in [`public/thirdparty/logos/`](public/thirdparty/logos)
 
-## 🚀 Advanced Usage
-
-### Workflow Automation
-
-CodinIT.dev supports complex multi-step workflows:
-
-```typescript
-// Example workflow definition
-const workflow = {
-  name: 'Data Analysis Pipeline',
-  fragments: [
-    { type: 'data-import', config: { source: 'csv' } },
-    { type: 'data-cleaning', config: { method: 'pandas' } },
-    { type: 'visualization', config: { charts: ['scatter', 'histogram'] } }
-  ],
-  connections: [
-    { from: 'data-import', to: 'data-cleaning' },
-    { from: 'data-cleaning', to: 'visualization' }
-  ]
-}
-```
-
-### Team Collaboration
-
-Setup team workspaces:
-
-1. Configure team billing in Stripe dashboard
-2. Invite team members via settings
-3. Set role-based permissions
-4. Share projects and workflows
-
-### API Integration
-
-Access CodinIT.dev programmatically:
-
-```typescript
-// Execute code via API
-const response = await fetch('/api/code/execute', {
-  method: 'POST',
-  headers: { 'Authorization': `Bearer ${token}` },
-  body: JSON.stringify({
-    code: 'print("Hello from API")',
-    template: 'code-interpreter-v1'
-  })
-})
-```
-
-## 📝 API Documentation
-
-CodinIT.dev provides a comprehensive REST API. Key endpoints:
-
-- `POST /api/chat` - AI code generation
-- `POST /api/sandbox` - Create execution environments  
-- `POST /api/code/execute` - Execute code in sandboxes
-- `GET /api/workflows` - List workflows
-- `POST /api/workflows/{id}/execute` - Execute workflows
-- `GET /api/files/sandbox/list` - Browse sandbox files
-
-For detailed API documentation, see [`openapi.yaml`](openapi.yaml) or import the Postman collection from [`postman-collection.json`](postman-collection.json).
-
-## 👥 Contributing
-
-We welcome contributions to CodinIT.dev! Please see our contributing guidelines:
-
 ### Development Setup
 
 1. Fork the repository
@@ -437,22 +373,6 @@ We welcome contributions to CodinIT.dev! Please see our contributing guidelines:
 5. Commit changes: `git commit -m 'Add amazing feature'`
 6. Push to branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request
-
-### Areas for Contribution
-
-- 🤖 New AI provider integrations
-- 📊 Additional sandbox templates
-- 🔧 Workflow automation improvements
-- 📝 Documentation and tutorials
-- 🐛 Bug fixes and performance optimizations
-- 🎨 UI/UX enhancements
-
-## 📞 Support
-
-- **Documentation**: Comprehensive guides in [`docs/`](docs/)
-- **GitHub Issues**: Report bugs and request features
-- **Community**: Join our Discord server
-- **Email**: Contact team@codinit.dev
 
 ## 📜 Apache 2.0 License
 
@@ -465,9 +385,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Vercel](https://vercel.com) for deployment and hosting
 - [shadcn/ui](https://ui.shadcn.com) for beautiful UI components
 - All the amazing AI providers making this possible
-
----
-
-<p align="center">
-  <strong>Built with ❤️ by the CodinIT.dev team</strong>
-</p>

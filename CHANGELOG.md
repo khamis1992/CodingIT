@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.9.1] - 2025-09-29
+
+### GitHub API Integration
+- Updated GitHub import component to use existing /api/github/ routes instead of missing integration endpoints
+- Modified lib/github-oauth.ts to call /api/github/user, /api/github/repos, and /api/github/orgs
+- Created new /api/github/repos/[owner]/[repo] endpoint for repository content fetching
+- Fixed repository loading to support both user and organization repositories
+- Restored file fetching functionality using GitHub Contents API
+- Maintained compatibility with existing TypeScript interfaces and error handling
+
 ## [v0.2.2] - 2025-08-27
 
 ### 🚀 Enhancements
