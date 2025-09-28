@@ -72,9 +72,6 @@ async function safeOperation<T>(
   }
 }
 
-// =============================================
-// USER PROFILE OPERATIONS
-// =============================================
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   if (!userId) return null
@@ -280,10 +277,6 @@ export async function updateUserPreferences(userId: string, updates: Partial<Use
   )
 }
 
-// =============================================
-// USER INTEGRATIONS OPERATIONS
-// =============================================
-
 export async function getUserIntegrations(userId: string): Promise<UserIntegration[]> {
   if (!userId) return []
 
@@ -364,10 +357,6 @@ export async function disconnectUserIntegration(userId: string, serviceName: str
     'disconnectUserIntegration'
   )
 }
-
-// =============================================
-// USER SECURITY SETTINGS OPERATIONS
-// =============================================
 
 export async function getUserSecuritySettings(userId: string): Promise<UserSecuritySettings | null> {
   if (!userId) return null
@@ -460,9 +449,6 @@ export async function updateUserSecuritySettings(userId: string, updates: Partia
   )
 }
 
-// =============================================
-// UTILITY FUNCTIONS
-// =============================================
 
 export async function getUserData(userId: string) {
   if (!userId) return null

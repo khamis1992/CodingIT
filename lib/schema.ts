@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-// Log entry types (moved from db/schema.ts for task management)
 export const logEntrySchema = z.object({
   id: z.string(),
   type: z.enum(['info', 'command', 'error', 'success']),
@@ -10,7 +9,6 @@ export const logEntrySchema = z.object({
 
 export type LogEntry = z.infer<typeof logEntrySchema>
 
-// Fragment schema (original CodinIT.dev schema)
 export const fragmentSchema = z.object({
   commentary: z.string().describe(`Describe what you're about to do and the steps you want to take for generating the fragment in great detail.`),
   template: z.string().describe('Name of the template used to generate the fragment.'),

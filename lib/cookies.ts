@@ -71,7 +71,6 @@ export function getSidebarWidthFromCookie(cookieString?: string): number {
   return DEFAULT_SIDEBAR_WIDTH
 }
 
-// Sidebar open/closed state functions
 export function getSidebarOpen(): boolean {
   if (typeof window === 'undefined') {
     return DEFAULT_SIDEBAR_OPEN

@@ -123,19 +123,110 @@ export async function fetchGitHubRepositories(options?: {
   type?: 'all' | 'owner' | 'public' | 'private' | 'member'
 }): Promise<{ repositories: GitHubRepository[]; total_count: number; has_more: boolean } | null> {
   try {
-    const params = new URLSearchParams()
-    if (options?.page) params.append('page', options.page.toString())
-    if (options?.per_page) params.append('per_page', options.per_page.toString())
-    if (options?.sort) params.append('sort', options.sort)
-    if (options?.type) params.append('type', options.type)
+    // First get the current user to know whose repos to fetch
+    const userResponse = await fetch('/api/github/user')
+    if (!userResponse.ok) {
+      throw new Error('Failed to fetch GitHub user')
+    }
+    const userData = await userResponse.json()
 
-    const response = await fetch(`/api/integrations/github/repos?${params.toString()}`)
-    
-    if (!response.ok) {
+    // Get user's repositories
+    const reposResponse = await fetch(`/api/github/repos?owner=${userData.login}`)
+    if (!reposResponse.ok) {
       throw new Error('Failed to fetch repositories')
     }
+    const userRepos = await reposResponse.json()
 
-    return await response.json()
+    // Get user's organizations and their repos if type allows
+    let orgRepos: any[] = []
+    if (!options?.type || options.type === 'all' || options.type === 'member') {
+      const orgsResponse = await fetch('/api/github/orgs')
+      if (orgsResponse.ok) {
+        const orgs = await orgsResponse.json()
+
+        for (const org of orgs) {
+          try {
+            const orgReposResponse = await fetch(`/api/github/repos?owner=${org.login}`)
+            if (orgReposResponse.ok) {
+              const repos = await orgReposResponse.json()
+              orgRepos.push(...repos)
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch repos for org ${org.login}:`, error)
+          }
+        }
+      }
+    }
+
+    // Filter repositories based on type
+    let allRepos = [...userRepos, ...orgRepos]
+    if (options?.type === 'owner') {
+      allRepos = userRepos // Only user's own repos
+    }
+
+    // Convert to expected format
+    const repositories: GitHubRepository[] = allRepos.map((repo: any) => ({
+      id: repo.id || Math.random(),
+      name: repo.name,
+      full_name: repo.full_name,
+      description: repo.description,
+      html_url: `https://github.com/${repo.full_name}`,
+      clone_url: repo.clone_url,
+      ssh_url: `git@github.com:${repo.full_name}.git`,
+      private: repo.private,
+      fork: false,
+      archived: false,
+      disabled: false,
+      owner: {
+        login: repo.full_name.split('/')[0],
+        avatar_url: userData.avatar_url,
+        type: 'User'
+      },
+      created_at: new Date().toISOString(),
+      updated_at: repo.updated_at,
+      pushed_at: repo.updated_at,
+      language: repo.language,
+      stargazers_count: 0,
+      watchers_count: 0,
+      forks_count: 0,
+      open_issues_count: 0,
+      size: 0,
+      default_branch: 'main',
+      topics: [],
+      has_issues: true,
+      has_projects: true,
+      has_wiki: true,
+      has_pages: false,
+      has_downloads: true,
+      license: null
+    }))
+
+    // Apply sorting if specified
+    if (options?.sort) {
+      repositories.sort((a, b) => {
+        switch (options.sort) {
+          case 'full_name':
+            return a.full_name.localeCompare(b.full_name)
+          case 'updated':
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+          default:
+            return 0
+        }
+      })
+    }
+
+    // Apply pagination
+    const page = options?.page || 1
+    const perPage = options?.per_page || 30
+    const startIndex = (page - 1) * perPage
+    const endIndex = startIndex + perPage
+    const paginatedRepos = repositories.slice(startIndex, endIndex)
+
+    return {
+      repositories: paginatedRepos,
+      total_count: repositories.length,
+      has_more: endIndex < repositories.length
+    }
   } catch (error) {
     console.error('Error fetching GitHub repositories:', error)
     return null
