@@ -25,9 +25,9 @@ interface SidebarProps {
   onStartNewChat?: () => void;
   onSearch?: (query: string) => void;
   onGetFreeTokens?: () => void;
-  onSelectAccount?: () => void;
   onSignOut?: () => void;
   onChatSelected?: (chatId: string) => void;
+  searchQuery?: string;
 }
 
 interface ChatHistoryItem {
@@ -43,9 +43,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onStartNewChat = () => {},
   onSearch = () => {},
   onGetFreeTokens = () => {},
-  onSelectAccount = () => {},
   onSignOut = () => {},
   onChatSelected = () => {},
+  searchQuery: externalSearchQuery = "",
 }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(initialIsOpen);
@@ -55,7 +55,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const leaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const groupedChats = chatHistory.reduce((acc, chat) => {
+  // Use external search query if provided, otherwise use internal state
+  const activeSearchQuery = externalSearchQuery || searchQuery;
+
+  // Filter chat history based on search query
+  const filteredChatHistory = React.useMemo(() => {
+    if (!activeSearchQuery.trim()) {
+      return chatHistory;
+    }
+    return chatHistory.filter(chat =>
+      chat.title.toLowerCase().includes(activeSearchQuery.toLowerCase())
+    );
+  }, [chatHistory, activeSearchQuery]);
+
+  const groupedChats = filteredChatHistory.reduce((acc, chat) => {
     (acc[chat.date] = acc[chat.date] || []).push(chat);
     return acc;
   }, {} as Record<string, ChatHistoryItem[]>);
@@ -257,15 +270,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onSelectAccount}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Account"
-          >
-            <User className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
             onClick={onSignOut}
             className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Sign Out"
@@ -314,7 +318,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Input
               type="text"
               placeholder="Search"
-              value={searchQuery}
+              value={activeSearchQuery}
               onChange={handleSearchChange}
               className="pl-10 bg-muted/50 border-border transition-colors"
             />
@@ -404,15 +408,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <CreditCard className="h-4 w-4" />
             My Subscription
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={onSelectAccount}
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <User className="h-4 w-4" />
-            Account Settings
           </Button>
 
           <Button
