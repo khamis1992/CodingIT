@@ -15,6 +15,7 @@ export default function Logo(
     <Image
       src={src}
       alt="Logo"
+      priority
       {...props}
       style={{ ...style, width, height: 'auto' }}
     />

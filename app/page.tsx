@@ -5,14 +5,12 @@ import { AuthDialog } from '@/components/auth-dialog';
 import { Chat } from '@/components/chat';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { NavBar } from '@/components/navbar';
-import { Preview } from '@/components/preview';
-import { Sidebar } from '@/components/sidebar';
-import { PricingModal } from '@/components/pricing';
 import { useAuth } from '@/lib/auth';
+import dynamic from 'next/dynamic';
 import { Project, createProject, saveMessage, getProjectMessages, generateProjectTitle, getProject } from '@/lib/database';
 import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages';
 import { LLMModelConfig } from '@/lib/models';
-import modelsList from '@/lib/models.json';
+import { loadModels } from '@/lib/models-loader';
 import { FragmentSchema, fragmentSchema as schema } from '@/lib/schema';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import templates, { TemplateId } from '@/lib/templates';
@@ -28,6 +26,18 @@ import { HeroPillSecond } from '@/components/announcement';
 import { useAnalytics } from '@/lib/analytics-service';
 import { SupabaseClient } from '@supabase/supabase-js';
 
+const PricingModal = dynamic(() => import('@/components/pricing').then(mod => ({ default: mod.PricingModal })), {
+  ssr: false,
+});
+
+const Sidebar = dynamic(() => import('@/components/sidebar').then(mod => ({ default: mod.Sidebar })), {
+  ssr: false,
+});
+
+const Preview = dynamic(() => import('@/components/preview').then(mod => ({ default: mod.Preview })), {
+  ssr: false,
+});
+
 export default function Home() {
   const supabase = createSupabaseBrowserClient()
   const [selectedTemplate, setSelectedTemplate] = useState<'auto' | TemplateId>('auto')
@@ -37,6 +47,7 @@ export default function Home() {
       model: 'claude-3-5-sonnet-latest',
     },
   )
+  const [modelsList, setModelsList] = useState<any>(null)
 
   const posthog = usePostHog()
   const analytics = useAnalytics()
@@ -71,6 +82,11 @@ export default function Home() {
   const { session } = useAuth(setAuthDialogCallback, setAuthViewCallback)
   const { userTeam } = useUserTeam()
 
+  // Load models list asynchronously
+  useEffect(() => {
+    loadModels().then(setModelsList)
+  }, [])
+
 
   const handleChatSelected = async (chatId: string) => {
     const project = await getProject(supabase, chatId);
@@ -79,15 +95,15 @@ export default function Home() {
     }
   };
 
-  const filteredModels = modelsList.models.filter((model) => {
+  const filteredModels = modelsList?.models?.filter((model: any) => {
     if (process.env.NEXT_PUBLIC_HIDE_LOCAL_MODELS) {
       return model.providerId !== 'ollama'
     }
     return true
-  })
+  }) || []
 
   const currentModel = filteredModels.find(
-    (model) => model.id === languageModel.model,
+    (model: any) => model.id === languageModel.model,
   );
 
 

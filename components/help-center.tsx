@@ -1,4 +1,3 @@
-// File: components/help-modal.tsx
 "use client"
 
 import { Badge } from '@/components/ui/badge'

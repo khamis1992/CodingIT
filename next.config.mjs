@@ -3,16 +3,40 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
-  webpack: (config, { dev }) => {
-    // Optimize caching for large JSON files
-    if (!dev) {
-      config.cache = {
-        ...config.cache,
-        maxMemoryGenerations: 1,
-      };
-    }
-    return config;
-  }
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/logo.png',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400',
+          },
+        ],
+      },
+      {
+        source: '/logo-dark.png',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 export default nextConfig

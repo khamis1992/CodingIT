@@ -3,6 +3,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowUp, Paperclip, Square, X, StopCircle, Mic, Globe, BrainCog, FolderCog } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { ChatSettings } from '../chat-settings'
 import { ChatPicker } from '../chat-picker'
 import { LLMModel, LLMModelConfig } from '@/lib/models'
@@ -182,13 +183,17 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
-      onStopRecording(time);
-      setTime(0);
+      setTime(currentTime => {
+        if (currentTime > 0) {
+          onStopRecording(currentTime);
+        }
+        return 0;
+      });
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRecording, time, onStartRecording, onStopRecording]);
+  }, [isRecording, onStartRecording, onStopRecording]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -242,10 +247,12 @@ const ImageViewDialog: React.FC<ImageViewDialogProps> = ({ imageUrl, onClose }) 
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="relative bg-background rounded-2xl overflow-hidden shadow-2xl"
         >
-          <img
+          <Image
             src={imageUrl}
             alt="Full preview"
-            className="w-full max-h-[80vh] object-contain rounded-2xl"
+            fill
+            className="object-contain rounded-2xl"
+            sizes="(max-width: 768px) 95vw, (max-width: 1200px) 80vw, 70vw"
           />
         </motion.div>
       </DialogContent>
@@ -479,11 +486,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     }
   };
 
-  const handleCanvasToggle = () => setShowCanvas((prev) => !prev);
+  const handleCanvasToggle = () => setShowCanvas(prev => !prev);
 
   const isImageFile = (file: File) => file.type.startsWith("image/");
 
-  const processFile = (file: File) => {
+  const processFile = React.useCallback((file: File) => {
     if (!isImageFile(file)) {
       console.log("Only image files are allowed");
       return;
@@ -496,7 +503,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     const reader = new FileReader();
     reader.onload = (e) => setFilePreviews({ [file.name]: e.target?.result as string });
     reader.readAsDataURL(file);
-  };
+  }, []);
 
   const handleDragOver = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -514,7 +521,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     const files = Array.from(e.dataTransfer.files);
     const imageFiles = files.filter((file) => isImageFile(file));
     if (imageFiles.length > 0) processFile(imageFiles[0]);
-  }, []);
+  }, [processFile]);
 
   const handleRemoveFile = (index: number) => {
     const fileToRemove = files[index];
@@ -537,7 +544,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         }
       }
     }
-  }, []);
+  }, [processFile]);
 
   React.useEffect(() => {
     document.addEventListener("paste", handlePaste);
@@ -608,13 +615,15 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               <div key={index} className="relative group">
                 {file.type.startsWith("image/") && filePreviews[file.name] && (
                   <div
-                    className="w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all duration-300"
+                    className="relative w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all duration-300"
                     onClick={() => openImageModal(filePreviews[file.name])}
                   >
-                    <img
+                    <Image
                       src={filePreviews[file.name]}
                       alt={file.name}
-                      className="h-full w-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="64px"
                     />
                     <button
                       onClick={(e) => {
