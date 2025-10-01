@@ -21,7 +21,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { ScrollArea } from './ui/scroll-area'
-import { useUpgradeDialog } from './upgrade-dialog'
 
 interface GitHubRepo {
   id: number
@@ -58,9 +57,7 @@ interface GitHubImportProps {
 
 export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
   const { session } = useAuth(() => {}, () => {})
-  const { toast } = useToast()
-  const { UpgradeDialog, openUpgradeDialog } = useUpgradeDialog()
-  
+  const { toast } = useToast()  
   const [repositories, setRepositories] = useState<GitHubRepo[]>([])
   const [usageLimits, setUsageLimits] = useState<UsageLimits | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -151,20 +148,6 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
 
   const importRepository = async (repo: GitHubRepo) => {
     if (!session?.user?.id) return
-
-    // Check if user can import more repositories
-    if (usageLimits && !usageLimits.can_import) {
-      openUpgradeDialog({
-        currentPlan: usageLimits.plan_name,
-        featureBlocked: {
-          type: 'github_imports',
-          currentUsage: usageLimits.current_usage,
-          limit: usageLimits.limit
-        },
-        triggerReason: 'feature_limit'
-      })
-      return
-    }
 
     setIsImporting(true)
     setSelectedRepo(repo)
@@ -427,7 +410,6 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
           )}
         </div>
       </CardContent>
-      <UpgradeDialog currentPlan={usageLimits?.plan_name} />
     </Card>
   )
 }

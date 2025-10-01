@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Download, FileText } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const CodeView = dynamic(() => import('./code-view').then(mod => mod.CodeView), {
   ssr: false,
@@ -19,10 +19,29 @@ export function FragmentCode({
 }: {
   files: { name: string; content: string }[]
 }) {
-  const [currentFile, setCurrentFile] = useState(files[0].name)
-  const currentFileContent = files.find(
+  // Safely handle undefined or invalid files array
+  if (!files || !Array.isArray(files)) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        No files to display
+      </div>
+    )
+  }
+
+  // Filter out any invalid files
+  const validFiles = files.filter(file => file && typeof file === 'object' && file.name && file.content !== undefined)
+
+  const [currentFile, setCurrentFile] = useState(validFiles[0]?.name || '')
+  const currentFileContent = validFiles.find(
     (file) => file.name === currentFile,
   )?.content
+
+  // Update current file when validFiles changes
+  useEffect(() => {
+    if (validFiles.length > 0 && !validFiles.find(f => f.name === currentFile)) {
+      setCurrentFile(validFiles[0].name)
+    }
+  }, [validFiles, currentFile])
 
   function download(filename: string, content: string) {
     const blob = new Blob([content], { type: 'text/plain' })
@@ -37,11 +56,19 @@ export function FragmentCode({
     document.body.removeChild(a)
   }
 
+  if (!validFiles || validFiles.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        No files to display
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center px-2 pt-1 gap-2">
         <div className="flex flex-1 gap-2 overflow-x-auto">
-          {files.map((file) => (
+          {validFiles.map((file) => (
             <div
               key={file.name}
               className={`flex gap-2 select-none cursor-pointer items-center text-sm text-muted-foreground px-2 py-1 rounded-md hover:bg-muted border ${

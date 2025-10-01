@@ -454,6 +454,8 @@ interface PromptInputBoxProps {
   onLanguageModelChange: (config: LLMModelConfig) => void
   apiKeyConfigurable: boolean
   baseURLConfigurable: boolean
+  useMorphApply?: boolean
+  onUseMorphApplyChange?: (value: boolean) => void
 }
 export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref: React.Ref<HTMLDivElement>) => {
   React.useEffect(() => {
@@ -464,7 +466,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
       document.head.removeChild(styleSheet);
     };
   }, []);
-  const { onSend = () => {}, isLoading = false, placeholder = "Type your message here...", className, templates, selectedTemplate, onSelectedTemplateChange, models, languageModel, onLanguageModelChange, apiKeyConfigurable, baseURLConfigurable } = props;
+  const { onSend = () => {}, isLoading = false, placeholder = "Type your message here...", className, templates, selectedTemplate, onSelectedTemplateChange, models, languageModel, onLanguageModelChange, apiKeyConfigurable, baseURLConfigurable, useMorphApply, onUseMorphApplyChange } = props;
   const [input, setInput] = React.useState("");
   const [files, setFiles] = React.useState<File[]>([]);
   const [filePreviews, setFilePreviews] = React.useState<{ [key: string]: string }>({});
@@ -607,6 +609,8 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
             baseURLConfigurable={baseURLConfigurable}
             languageModel={languageModel}
             onLanguageModelChange={onLanguageModelChange}
+            useMorphApply={useMorphApply}
+            onUseMorphApplyChange={onUseMorphApplyChange}
           />
         </div>
         {files.length > 0 && !isRecording && (

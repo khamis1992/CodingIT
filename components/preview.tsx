@@ -1,7 +1,8 @@
-import { EnhancedCodeInterpreter } from './enhanced-code-interpreter'
 import { FragmentCode } from './fragment-code'
 import { FragmentPreview } from './fragment-preview'
 import { FragmentTerminal } from './fragment-terminal'
+import { FragmentInterpreter } from './fragment-interpreter'
+import { CodeEditor } from './code-editor'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -12,11 +13,9 @@ import {
 } from '@/components/ui/tooltip'
 import { FragmentSchema } from '@/lib/schema'
 import { ExecutionResult } from '@/lib/types'
-import { getTemplateFiles, TemplateFile } from '@/lib/template-files'
 import { DeepPartial } from 'ai'
-import { ChevronsRight, LoaderCircle, Terminal, CodeIcon } from 'lucide-react'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
-import { IDE } from './ide'
+import { ChevronsRight, LoaderCircle, Terminal, Code, FileCode } from 'lucide-react'
+import { Dispatch, SetStateAction } from 'react'
 
 export function Preview({
   teamID,
@@ -29,56 +28,34 @@ export function Preview({
   result,
   onClose,
   code,
-  executeCode,
   selectedFile,
   onSave,
+  executeCode,
 }: {
   teamID: string | undefined
   accessToken: string | undefined
   selectedTab: 'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'
-  onSelectedTabChange: Dispatch<
-    SetStateAction<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>
-  >
+  onSelectedTabChange: Dispatch<SetStateAction<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>>
   isChatLoading: boolean
   isPreviewLoading: boolean
   fragment?: DeepPartial<FragmentSchema>
   result?: ExecutionResult
   onClose: () => void
-  code: string
-  executeCode: (code: string) => Promise<void>
-  selectedFile: { path: string; content: string } | null
-  onSave: (path: string, content: string) => void
+  code?: string
+  selectedFile?: { path: string; content: string } | null
+  onSave?: (path: string, content: string) => Promise<void>
+  executeCode?: (code: string) => Promise<any>
 }) {
-  const [templateFiles, setTemplateFiles] = useState<TemplateFile[]>([
-    { name: 'code.tsx', content: fragment?.code ?? '' },
-  ])
-
-  useEffect(() => {
-    const fetchTemplateFiles = async () => {
-      if (result?.template) {
-        const files = await getTemplateFiles(result.template, fragment?.code, false)
-        setTemplateFiles(files)
-      } else {
-        setTemplateFiles([{ name: 'code.tsx', content: fragment?.code ?? '' }])
-      }
-    }
-    fetchTemplateFiles()
-  }, [result?.template, fragment?.code])
-
   if (!fragment) {
     return null
   }
-
-  const isLinkAvailable = result?.template !== 'code-interpreter-v1'
 
   return (
     <div className="absolute md:relative z-10 top-0 left-0 shadow-2xl md:rounded-tl-3xl md:rounded-bl-3xl md:border-l md:border-y bg-popover h-full w-full overflow-auto">
       <Tabs
         value={selectedTab}
-        onValueChange={(value: string) =>
-          onSelectedTabChange(
-            value as 'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'
-          )
+        onValueChange={(value) =>
+          onSelectedTabChange(value as 'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor')
         }
         className="h-full flex flex-col items-start justify-start"
       >
@@ -99,7 +76,7 @@ export function Preview({
             </Tooltip>
           </TooltipProvider>
           <div className="flex justify-center">
-            <TabsList className="px-1 py-0 border">
+            <TabsList className="px-1 py-0 border h-8">
               <TabsTrigger
                 className="font-normal text-xs py-1 px-2 gap-1 flex items-center"
                 value="code"
@@ -110,6 +87,7 @@ export function Preview({
                     className="h-3 w-3 animate-spin"
                   />
                 )}
+                <Code className="h-3 w-3" />
                 Code
               </TabsTrigger>
               <TabsTrigger
@@ -126,15 +104,7 @@ export function Preview({
                 )}
               </TabsTrigger>
               <TabsTrigger
-                disabled={isPreviewLoading || !result}
-                className="font-normal text-xs py-1 px-2 gap-1 flex items-center"
-                value="interpreter"
-              >
-                <CodeIcon className="h-3 w-3" />
-                Interpreter
-              </TabsTrigger>
-              <TabsTrigger
-                disabled={isPreviewLoading || !result}
+                disabled={!result}
                 className="font-normal text-xs py-1 px-2 gap-1 flex items-center"
                 value="terminal"
               >
@@ -142,52 +112,104 @@ export function Preview({
                 Terminal
               </TabsTrigger>
               <TabsTrigger
-                disabled={isPreviewLoading || !result}
+                disabled={!result || result.template !== 'code-interpreter-v1'}
+                className="font-normal text-xs py-1 px-2 gap-1 flex items-center"
+                value="interpreter"
+              >
+                <Code className="h-3 w-3" />
+                Interpreter
+              </TabsTrigger>
+              <TabsTrigger
+                disabled={!selectedFile}
                 className="font-normal text-xs py-1 px-2 gap-1 flex items-center"
                 value="editor"
               >
-                <CodeIcon className="h-3 w-3" />
+                <FileCode className="h-3 w-3" />
                 Editor
               </TabsTrigger>
             </TabsList>
           </div>
-          {result && (
-            <div className="flex items-center justify-end gap-2">
-            </div>
-          )}
+          <div className="flex items-center justify-end gap-2">
+            {/* Add any additional buttons here */}
+          </div>
         </div>
         {fragment && (
           <div className="overflow-y-auto w-full h-full">
             <TabsContent value="code" className="h-full">
-              <FragmentCode files={templateFiles} />
+              {fragment.code ? (
+                <FragmentCode
+                  files={[
+                    {
+                      name: fragment.file_path || 'code.txt',
+                      content: fragment.code || '',
+                    },
+                  ]}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  No code to display
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="fragment" className="h-full">
-              {result && (
+              {result ? (
                 <FragmentPreview
                   result={result as ExecutionResult}
-                  code={code}
-                  executeCode={executeCode}
+                  code={code || fragment.code || ''}
+                  executeCode={executeCode || (async () => {})}
                 />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Preview will appear here once the code is executed
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="terminal" className="h-full">
+              {result ? (
+                <FragmentTerminal
+                  teamID={teamID}
+                  accessToken={accessToken}
+                  result={result as ExecutionResult}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Terminal access will appear here once the sandbox is created
+                </div>
               )}
             </TabsContent>
             <TabsContent value="interpreter" className="h-full">
-              <EnhancedCodeInterpreter
-                result={result && result.template === 'code-interpreter-v1' ? result : undefined}
-                code={code}
-                executeCode={executeCode}
-              />
-            </TabsContent>
-            <TabsContent value="terminal" className="h-full">
-              {result && (
-                <FragmentTerminal
-                  result={result as ExecutionResult}
-                  teamID={teamID}
-                  accessToken={accessToken}
+              {result && result.template === 'code-interpreter-v1' ? (
+                <FragmentInterpreter
+                  result={result}
+                  code={code || fragment.code || ''}
+                  executeCode={executeCode || (async () => {})}
                 />
+              ) : result ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Interpreter only available for code-interpreter-v1 template
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Interpreter will appear here once the sandbox is created
+                </div>
               )}
             </TabsContent>
             <TabsContent value="editor" className="h-full">
-              <IDE />
+              {selectedFile && onSave ? (
+                <CodeEditor
+                  code={selectedFile.content}
+                  lang={selectedFile.path.split('.').pop() || 'txt'}
+                  onChange={(value) => {
+                    if (value !== undefined) {
+                      onSave(selectedFile.path, value)
+                    }
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Select a file from the file tree to edit
+                </div>
+              )}
             </TabsContent>
           </div>
         )}

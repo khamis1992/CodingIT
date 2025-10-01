@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { ChatSession } from '@/lib/chat-persistence'
 import { 
   MessageSquare, 
   Search, 
@@ -36,6 +35,7 @@ import {
   Clock
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { ChatSession } from '@/lib/database.types'
 
 interface ChatHistoryProps {
   sessions: ChatSession[]
@@ -71,18 +71,18 @@ export function ChatHistory({
 
   const groupedSessions = {
     today: filteredSessions.filter(session => {
-      const sessionDate = new Date(session.lastActivity)
+      const sessionDate = new Date(session.last_activity)
       const today = new Date()
       return sessionDate.toDateString() === today.toDateString()
     }),
     yesterday: filteredSessions.filter(session => {
-      const sessionDate = new Date(session.lastActivity)
+      const sessionDate = new Date(session.last_activity)
       const yesterday = new Date()
       yesterday.setDate(yesterday.getDate() - 1)
       return sessionDate.toDateString() === yesterday.toDateString()
     }),
     lastWeek: filteredSessions.filter(session => {
-      const sessionDate = new Date(session.lastActivity)
+      const sessionDate = new Date(session.last_activity)
       const weekAgo = new Date()
       weekAgo.setDate(weekAgo.getDate() - 7)
       const yesterday = new Date()
@@ -90,7 +90,7 @@ export function ChatHistory({
       return sessionDate > weekAgo && sessionDate < yesterday
     }),
     older: filteredSessions.filter(session => {
-      const sessionDate = new Date(session.lastActivity)
+      const sessionDate = new Date(session.last_activity)
       const weekAgo = new Date()
       weekAgo.setDate(weekAgo.getDate() - 7)
       return sessionDate <= weekAgo
@@ -106,27 +106,27 @@ export function ChatHistory({
   }
 
   const startEditing = (session: ChatSession) => {
-    setEditingSession(session.sessionId)
+    setEditingSession(session.session_id)
     setEditTitle(session.title || '')
   }
 
   const handleDeleteConfirm = () => {
     if (deletingSession) {
-      onSessionDelete(deletingSession.sessionId)
+      onSessionDelete(deletingSession.session_id)
       setDeletingSession(null)
     }
   }
 
   const SessionItem = ({ session }: { session: ChatSession }) => {
-    const isActive = session.sessionId === currentSessionId
-    const isEditing = editingSession === session.sessionId
+    const isActive = session.session_id === currentSessionId
+    const isEditing = editingSession === session.session_id
 
     return (
       <div
         className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent ${
           isActive ? 'bg-accent border border-border' : ''
         }`}
-        onClick={() => !isEditing && onSessionSelect(session.sessionId)}
+        onClick={() => !isEditing && onSessionSelect(session.session_id)}
       >
         <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
         
@@ -135,10 +135,10 @@ export function ChatHistory({
             <Input
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              onBlur={() => handleSessionRename(session.sessionId)}
+              onBlur={() => handleSessionRename(session.session_id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleSessionRename(session.sessionId)
+                  handleSessionRename(session.session_id)
                 } else if (e.key === 'Escape') {
                   setEditingSession(null)
                   setEditTitle('')
@@ -155,9 +155,9 @@ export function ChatHistory({
               </div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Hash className="h-3 w-3" />
-                <span>{session.messageCount}</span>
+                <span>{session.message_count}</span>
                 <Clock className="h-3 w-3 ml-1" />
-                <span>{formatDistanceToNow(new Date(session.lastActivity), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(session.last_activity), { addSuffix: true })}</span>
               </div>
               {(session.model || session.template) && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -210,7 +210,7 @@ export function ChatHistory({
         </h3>
         <div className="space-y-1">
           {sessions.map(session => (
-            <SessionItem key={session.sessionId} session={session} />
+            <SessionItem key={session.session_id} session={session} />
           ))}
         </div>
       </div>
