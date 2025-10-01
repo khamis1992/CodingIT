@@ -10,21 +10,17 @@
 /coverage
 
 # demo files (temporary for testing)
-/app/demo
-/components/demo-enhanced-interpreter.tsx
 .env.local
 
 # next.js
 /.next/
 /out/
 
-.claude
-
-claude.md
-
 .env
 
 .mcp.json 
+
+.temp
 
 # production
 /build
@@ -55,3 +51,6 @@ next-env.d.ts
 scripts
 .vscode
 mcp.json
+
+CLAUDE.md
+.claude
