@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     return createRateLimitResponse(limit)
   }
 
-  const { model: modelNameString, apiKey: modelApiKey, ...modelParams } = config
+  const { model: _model, apiKey: _apiKey, ...modelParams } = config
   const modelClient = getModelClient(model, config)
 
   try {
