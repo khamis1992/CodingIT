@@ -33,6 +33,7 @@ export function Chat({
     >
       {messages.length === 0 && !isLoading && (
         <div className="flex items-center justify-center h-full text-muted-foreground text-lg font-serif">
+          Start a new conversation
         </div>
       )}
 
