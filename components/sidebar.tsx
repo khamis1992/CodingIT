@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { X, MessageCircle, Search, Gift, Settings, HelpCircle, CreditCard, User, LogOut, MoreHorizontal, Menu, Plus, Trash2, CornerUpLeft } from 'lucide-react';
+import { X, MessageCircle, Search, Gift, Settings, HelpCircle, CreditCard, User, LogOut, MoreHorizontal, Menu, Plus, Trash2, CornerUpLeft, ListTodo } from 'lucide-react';
 import type { User as SupabaseUser, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import {
   DropdownMenu,
@@ -220,6 +220,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             aria-label="Search"
           >
             <Search className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Tasks"
+          >
+            <Link href="/tasks">
+              <ListTodo className="h-5 w-5" />
+            </Link>
           </Button>
         </div>
 

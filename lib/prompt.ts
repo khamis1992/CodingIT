@@ -1,36 +1,15 @@
-import { templatesToPrompt, Templates } from '@/lib/templates'
-import { getLLMGuide, getTemplateInstructions } from '@/lib/llm-guide'
+import { Templates, templatesToPrompt } from '@/lib/templates'
 
 export function toPrompt(template: Templates) {
-  const llmGuide = getLLMGuide()
-
-  const templateInstructions = getTemplateInstructions(template.toString())
-
-  const availableTemplates = `
-
-AVAILABLE TEMPLATES IN THIS SESSION
-
-Current template: ${template}
-Template configuration:
-${templatesToPrompt(template)}
-
-${templateInstructions ? `
-TEMPLATE-SPECIFIC INSTRUCTIONS FOR ${template.toString().toUpperCase()}
-
-${templateInstructions}
-` : ''}
-
-FRAGMENT SCHEMA COMPLIANCE
-
-- Adhere to fragmentSchema defined in @/lib/schema
-- Include: commentary, template, title, description, additional_dependencies, has_additional_dependencies, install_dependencies_command, port, file_path, code
-- Ensure isolated sandbox execution within 10-minute timeout
-- Implement state persistence via fragment schema and E2B sandbox API
-- Generate complete file contents (E2B WebContainer cannot perform diff/patch edits)
-`
-
-  return [
-    llmGuide,
-    availableTemplates,
-  ].join('\n')
+  return `
+    You are a skilled software engineer.
+    You do not make mistakes.
+    Generate an fragment.
+    You can install additional dependencies.
+    Do not touch project dependencies files like package.json, package-lock.json, requirements.txt, etc.
+    Do not wrap code in backticks.
+    Always break the lines correctly.
+    You can use one of the following templates:
+    ${templatesToPrompt(template)}
+  `
 }

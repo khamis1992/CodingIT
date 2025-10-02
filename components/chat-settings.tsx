@@ -7,6 +7,7 @@ import {
 } from './ui/dropdown-menu'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { Switch } from './ui/switch'
 import {
   Tooltip,
   TooltipContent,
@@ -21,11 +22,15 @@ export function ChatSettings({
   baseURLConfigurable,
   languageModel,
   onLanguageModelChange,
+  useMorphApply,
+  onUseMorphApplyChange,
 }: {
   apiKeyConfigurable: boolean
   baseURLConfigurable: boolean
   languageModel: LLMModelConfig
   onLanguageModelChange: (model: LLMModelConfig) => void
+  useMorphApply?: boolean
+  onUseMorphApplyChange?: (value: boolean) => void
 }) {
   return (
     <DropdownMenu>
@@ -199,6 +204,26 @@ export function ChatSettings({
             />
           </div>
         </div>
+        {onUseMorphApplyChange && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="flex items-center justify-between px-2 py-2">
+              <div className="flex flex-col gap-0.5">
+                <Label htmlFor="morph-apply" className="text-sm font-medium">
+                  Morph Apply
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  Edit existing code instead of regenerating
+                </span>
+              </div>
+              <Switch
+                id="morph-apply"
+                checked={useMorphApply}
+                onCheckedChange={onUseMorphApplyChange}
+              />
+            </div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

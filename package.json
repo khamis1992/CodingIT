@@ -76,7 +76,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.63.0",
     "react-resizable-panels": "^3.0.6",
-    "react-syntax-highlighter": "^5.8.0",
+    "react-syntax-highlighter": "^15.6.6",
     "react-textarea-autosize": "^8.5.9",
     "recharts": "^3.2.1",
     "server-only": "^0.0.1",
@@ -96,7 +96,10 @@
   },
   "pnpm": {
     "overrides": {
-      "zod": "^3.25.76"
+      "zod": "^3.25.76",
+      "undici": "^6.21.3",
+      "prismjs": "^1.30.0",
+      "esbuild": "^0.25.9"
     }
   },
   "devDependencies": {
@@ -113,7 +116,7 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
-    "@vercel/node": "^2.15.10",
+    "@vercel/node": "^5.3.24",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.15.0",
     "eslint-config-next": "15.1.1",

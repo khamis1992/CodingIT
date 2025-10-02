@@ -11,7 +11,6 @@ export type ExecutionResultInterpreter = ExecutionResultBase & {
   stderr: string[]
   runtimeError?: ExecutionError
   cellResults: Result[]
-  error?: string
 }
 
 export type ExecutionResultWeb = ExecutionResultBase & {

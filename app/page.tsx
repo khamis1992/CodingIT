@@ -10,7 +10,6 @@ import dynamic from 'next/dynamic';
 import { Project, createProject, saveMessage, getProjectMessages, generateProjectTitle, getProject } from '@/lib/database';
 import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages';
 import { LLMModelConfig } from '@/lib/models';
-import { loadModels } from '@/lib/models-loader';
 import { FragmentSchema, fragmentSchema as schema } from '@/lib/schema';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import templates, { TemplateId } from '@/lib/templates';
@@ -23,8 +22,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useUserTeam } from '@/lib/user-team-provider';
 import { HeroPillSecond } from '@/components/announcement';
-import { useAnalytics } from '@/lib/analytics-service';
 import { SupabaseClient } from '@supabase/supabase-js';
+import models from '@/lib/models.json';
 
 const PricingModal = dynamic(() => import('@/components/pricing').then(mod => ({ default: mod.PricingModal })), {
   ssr: false,
@@ -47,10 +46,12 @@ export default function Home() {
       model: 'claude-3-5-sonnet-latest',
     },
   )
-  const [modelsList, setModelsList] = useState<any>(null)
+  const [useMorphApply, setUseMorphApply] = useLocalStorage(
+    'useMorphApply',
+    process.env.NEXT_PUBLIC_USE_MORPH_APPLY === 'true',
+  )
 
   const posthog = usePostHog()
-  const analytics = useAnalytics()
 
   const [result, setResult] = useState<ExecutionResult>()
   const [sessionStartTime] = useState(Date.now())
@@ -82,12 +83,6 @@ export default function Home() {
   const { session } = useAuth(setAuthDialogCallback, setAuthViewCallback)
   const { userTeam } = useUserTeam()
 
-  // Load models list asynchronously
-  useEffect(() => {
-    loadModels().then(setModelsList)
-  }, [])
-
-
   const handleChatSelected = async (chatId: string) => {
     const project = await getProject(supabase, chatId);
     if (project) {
@@ -95,20 +90,23 @@ export default function Home() {
     }
   };
 
-  const filteredModels = modelsList?.models?.filter((model: any) => {
+  const filteredModels = models.models.filter((model: any) => {
     if (process.env.NEXT_PUBLIC_HIDE_LOCAL_MODELS) {
       return model.providerId !== 'ollama'
     }
     return true
-  }) || []
+  })
 
   const currentModel = filteredModels.find(
     (model: any) => model.id === languageModel.model,
   );
 
+  // Determine which API to use based on morph toggle and existing fragment
+  const shouldUseMorph = useMorphApply && fragment && fragment.code && fragment.file_path
+  const apiEndpoint = shouldUseMorph ? '/api/morph-chat' : '/api/chat'
 
   const { object, submit, isLoading, stop, error } = useObject({
-    api: '/api/chat',
+    api: apiEndpoint,
     schema,
     onError: (error: Error) => {
       setErrorsEncountered(prev => prev + 1)
@@ -147,9 +145,7 @@ export default function Home() {
       if (!error && fragment) {
         setIsPreviewLoading(true);
         // Enhanced analytics tracking
-        const generationTime = Date.now() - Date.now() // Would track actual generation time
         if (fragment.code && fragment.template) {
-          analytics.trackFragmentGenerated(fragment as FragmentSchema, generationTime, 1)
         }
         setFragmentsGenerated(prev => prev + 1)
         
@@ -179,7 +175,6 @@ export default function Home() {
 
         // Enhanced sandbox tracking
         const creationTime = Date.now() - Date.now() // Would track actual creation time
-        analytics.trackSandboxCreation(fragment?.template || 'unknown', creationTime, response.ok)
         
         posthog.capture('sandbox_created', { url: result.url })
 
@@ -263,15 +258,15 @@ export default function Home() {
     return () => {
       if (session?.user?.id) {
         const sessionDuration = Date.now() - sessionStartTime
-        analytics.trackSessionEnd(
-          sessionDuration,
-          fragmentsGenerated,
-          messagesCount,
-          errorsEncountered
-        )
+        posthog.capture('session_end', {
+          duration: sessionDuration,
+          fragments_generated: fragmentsGenerated,
+          messages_count: messagesCount,
+          errors_encountered: errorsEncountered
+        })
       }
     }
-  }, [session?.user?.id, sessionStartTime, fragmentsGenerated, messagesCount, errorsEncountered, analytics])
+  }, [session?.user?.id, sessionStartTime, fragmentsGenerated, messagesCount, errorsEncountered])
 
   function setMessage(message: Partial<Message>, index?: number) {
     setMessages((previousMessages) => {
@@ -325,6 +320,7 @@ export default function Home() {
       template: templateToSend,
       model: currentModel,
       config: languageModel,
+      ...(shouldUseMorph && fragment ? { currentFragment: fragment } : {}),
     })
 
     if (!currentProject) {
@@ -347,17 +343,9 @@ export default function Home() {
     const promptLength = currentInput.length
     const hasImages = currentFiles.length > 0
     
-    analytics.trackPromptSubmission(
-      currentInput,
-      languageModel.model || 'unknown',
-      promptLength,
-      hasImages,
-      messages.length > 0 ? 'conversation' : 'none'
-    )
-    
     // Track template selection
     if (selectedTemplate !== 'auto') {
-      analytics.trackTemplateSelected(selectedTemplate, 'manual')
+      posthog.capture('template_selected', { template: selectedTemplate, source: 'manual' })
     }
         
     posthog.capture('chat_submit', {
@@ -374,6 +362,7 @@ export default function Home() {
       template: templates,
       model: currentModel,
       config: languageModel,
+      ...(shouldUseMorph && fragment ? { currentFragment: fragment } : {}),
     })
   }
 
@@ -392,7 +381,11 @@ export default function Home() {
     
     if (previousModel && newModel && previousModel !== newModel) {
       // Track model switching
-      analytics.trackModelSwitch(previousModel, newModel, 'experiment')
+      posthog.capture('model_switch', {
+        previousModel,
+        newModel,
+        source: 'experiment'
+      })
       
       // Revenue tracking handled by analytics service
     }
@@ -408,9 +401,7 @@ export default function Home() {
     }
 
     // Enhanced social tracking
-    analytics.trackFeatureUsed(`social_${target}`, { target })
-    
-    posthog.capture(`${target}_click`)
+    posthog.capture(`${target}_click`, { target })
   }
 
   function handleClearChat() {
@@ -594,6 +585,8 @@ export default function Home() {
                 onLanguageModelChange={handleLanguageModelChange}
                 apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
                 baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
+                useMorphApply={useMorphApply}
+                onUseMorphApplyChange={setUseMorphApply}
               />
           </div>
         </div>
