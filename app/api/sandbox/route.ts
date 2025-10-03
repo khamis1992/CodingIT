@@ -1,8 +1,71 @@
 import { FragmentSchema } from '@/lib/schema'
 import { ExecutionResultInterpreter, ExecutionResultWeb } from '@/lib/types'
 import { Sandbox } from '@e2b/code-interpreter'
+import { FileSystemNode } from '@/components/file-tree'
 
 const sandboxTimeout = 10 * 60 * 1000
+
+async function fetchSandboxFiles(sbx: Sandbox): Promise<FileSystemNode[]> {
+  try {
+    const result = await sbx.commands.run(
+      'find /home/user -type f -o -type d 2>/dev/null | grep -v "node_modules" | sort'
+    )
+
+    if (result.exitCode !== 0) {
+      console.error('Error listing files:', result.stderr)
+      return []
+    }
+
+    return parseFileTree(result.stdout)
+  } catch (error) {
+    console.error('Error fetching sandbox files:', error)
+    return []
+  }
+}
+
+function parseFileTree(output: string): FileSystemNode[] {
+  const lines = output.trim().split('\n').filter(line => line.trim())
+  const root: FileSystemNode[] = []
+  const nodeMap = new Map<string, FileSystemNode>()
+
+  const paths = lines
+    .map(line => line.trim())
+    .filter(path => path.startsWith('/home/user/'))
+    .sort()
+
+  for (const fullPath of paths) {
+    const relativePath = fullPath.replace('/home/user/', '')
+    if (!relativePath) continue
+
+    const parts = relativePath.split('/')
+    const name = parts[parts.length - 1]
+    const parentPath = parts.slice(0, -1).join('/')
+
+    const node: FileSystemNode = {
+      name,
+      isDirectory: false,
+      path: `/${relativePath}`,
+      children: []
+    }
+
+    nodeMap.set(relativePath, node)
+
+    if (parentPath === '') {
+      root.push(node)
+    } else {
+      const parent = nodeMap.get(parentPath)
+      if (parent) {
+        if (!parent.children) {
+          parent.children = []
+        }
+        parent.children.push(node)
+        parent.isDirectory = true
+      }
+    }
+  }
+
+  return root
+}
 
 export const maxDuration = 60
 export const runtime = 'nodejs'
@@ -97,6 +160,9 @@ export async function POST(req: Request) {
       if (fragment.template === 'code-interpreter-v1') {
         const { logs, error, results } = await sbx.runCode(fragment.code || '')
 
+        // Fetch file tree after execution
+        const files = await fetchSandboxFiles(sbx)
+
         return new Response(
           JSON.stringify({
             sbxId: sbx?.sandboxId,
@@ -105,6 +171,7 @@ export async function POST(req: Request) {
             stderr: logs.stderr,
             runtimeError: error,
             cellResults: results,
+            files,
           } as ExecutionResultInterpreter),
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -116,11 +183,15 @@ export async function POST(req: Request) {
         },
       })
 
+      // Fetch file tree after project setup
+      const files = await fetchSandboxFiles(sbx)
+
       return new Response(
         JSON.stringify({
           sbxId: sbx?.sandboxId,
           template: fragment.template,
           url: `https://${sbx?.getHost(fragment.port || 80)}`,
+          files,
         } as ExecutionResultWeb),
         { headers: { 'Content-Type': 'application/json' } }
       )
