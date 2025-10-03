@@ -6,14 +6,18 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
+  let workingDirectory = '/home/user'
+
   try {
-    const { 
-      command, 
-      sbxId, 
-      workingDirectory = '/home/user',
+    const {
+      command,
+      sbxId,
+      workingDirectory: wd = '/home/user',
       teamID,
-      accessToken 
+      accessToken
     } = await req.json()
+
+    workingDirectory = wd
 
     if (!command || !sbxId) {
       return NextResponse.json(
@@ -33,11 +37,24 @@ export async function POST(req: NextRequest) {
         : {}),
     })
 
-    const fullCommand = `cd "${workingDirectory}" && ${command}`
-    
+    // Replace pnpm with npm in commands since pnpm isn't available in E2B sandboxes
+    const sanitizedCommand = command.replace(/\bpnpm\b/g, 'npm')
+    const fullCommand = `cd "${workingDirectory}" && ${sanitizedCommand}`
+
     const result = await sandbox.commands.run(fullCommand, {
       timeoutMs: 30000,
     })
+
+    // If command failed with 127 (command not found), provide helpful message
+    if (result.exitCode === 127) {
+      const commandName = sanitizedCommand.split(' ')[0]
+      return NextResponse.json({
+        stdout: result.stdout,
+        stderr: result.stderr || `Command '${commandName}' not found. Available commands: ls, cd, pwd, cat, echo, node, npm, python3, git`,
+        exitCode: result.exitCode,
+        workingDirectory,
+      })
+    }
 
     return NextResponse.json({
       stdout: result.stdout,
@@ -48,13 +65,26 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Terminal command error:', error)
-    
+
+    // Extract useful error information
+    let errorMessage = error.message || 'Failed to execute command'
+    let stderr = errorMessage
+
+    // If it's a CommandExitError, extract the actual error
+    if (error.result) {
+      stderr = error.result.stderr || error.result.error || errorMessage
+      errorMessage = `Command failed with exit code ${error.result.exitCode}`
+    }
+
     return NextResponse.json(
-      { 
-        error: error.message || 'Failed to execute command',
-        stderr: error.message || 'Command execution failed'
+      {
+        error: errorMessage,
+        stderr: stderr,
+        stdout: error.result?.stdout || '',
+        exitCode: error.result?.exitCode || 1,
+        workingDirectory,
       },
-      { status: 500 }
+      { status: 200 } // Return 200 so the UI can display the error properly
     )
   }
 }
