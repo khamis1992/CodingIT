@@ -187,22 +187,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             onClick={handleOpenSidebar}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Open sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="icon"
             onClick={onStartNewChat}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Start new chat"
           >
             <Plus className="h-5 w-5" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="icon"
@@ -216,7 +216,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }
               }, 100)
             }}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Search"
           >
             <Search className="h-5 w-5" />
@@ -226,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             asChild
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Tasks"
           >
             <Link href="/tasks">
@@ -253,7 +253,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             asChild
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Settings"
           >
             <Link href="/settings">
@@ -264,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+              className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
               aria-label="Help Center"
             >
               <HelpCircle className="h-5 w-5" />
@@ -274,7 +274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             onClick={() => setIsPricingModalOpen(true)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="My Subscription"
           >
             <CreditCard className="h-5 w-5" />
@@ -283,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             onClick={onSignOut}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Sign Out"
           >
             <LogOut className="h-5 w-5" />
@@ -292,7 +292,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Collapsible Sidebar Content */}
-      <div 
+      <div
         className={`h-screen bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out ${
           isOpen ? 'w-80 opacity-100 translate-x-0' : 'w-0 opacity-0 -translate-x-full overflow-hidden'
         }`}
@@ -308,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="icon"
             onClick={handleCloseSidebar}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             aria-label="Close sidebar"
           >
             <X className="h-4 w-4" />
@@ -353,7 +353,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 group transition-colors"
+                            className="w-full justify-start gap-2 text-muted-foreground hover:text-primary dark:hover:text-foreground hover:bg-primary/5 dark:hover:bg-muted/50 group transition-colors"
                           >
                             <MessageCircle className="h-4 w-4 flex-shrink-0" />
                             <span className="truncate">{chat.title}</span>
@@ -395,7 +395,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             asChild
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
           >
             <Link href="/settings">
               <Settings className="h-4 w-4" />
@@ -406,7 +406,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <HelpModal trigger={
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
             >
               <HelpCircle className="h-4 w-4" />
               Help Center
@@ -416,7 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             onClick={() => setIsPricingModalOpen(true)}
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
           >
             <CreditCard className="h-4 w-4" />
             My Subscription
@@ -425,7 +425,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             onClick={onSignOut}
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary dark:hover:text-foreground transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Sign Out

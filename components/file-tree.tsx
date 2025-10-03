@@ -148,7 +148,7 @@ function FileTreeNode({
   return (
     <div>
       <div
-        className="flex items-center cursor-pointer hover:bg-muted/50 rounded-sm p-1 group"
+        className="flex items-center cursor-pointer hover:bg-primary/5 dark:hover:bg-muted/50 rounded-sm p-1 group"
         style={{ paddingLeft: level * 16 + 4 }}
         onClick={handleToggle}
       >
