@@ -71,25 +71,20 @@ export function createCommandLog(message: string): TaskLog {
 
 // Task operations using Supabase
 export async function createTask(supabase: SupabaseClient, data: CreateTaskData): Promise<Task | null> {
-  const taskId = nanoid()
-  const task: Omit<Task, 'created_at' | 'updated_at'> = {
-    id: taskId,
+  const task = {
     user_id: data.user_id,
-    status: 'pending',
+    status: 'pending' as const,
     progress: 0,
     prompt: data.prompt,
     repo_url: data.repo_url,
     selected_agent: data.selected_agent || 'claude',
     selected_model: data.selected_model,
-    logs: [createInfoLog('Task created, preparing to start...')],
+    logs: JSON.stringify([createInfoLog('Task created, preparing to start...')]),
   }
 
   const { data: newTask, error } = await supabase
     .from('tasks')
-    .insert({
-      ...task,
-      logs: JSON.stringify(task.logs),
-    })
+    .insert(task)
     .select()
     .single()
 
