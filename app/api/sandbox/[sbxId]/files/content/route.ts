@@ -1,5 +1,6 @@
 import { Sandbox } from '@e2b/code-interpreter'
 import { NextRequest } from 'next/server'
+import path from 'path'
 
 export const maxDuration = 60
 export const runtime = 'nodejs'
@@ -42,13 +43,19 @@ export async function GET(
     // Connect to existing sandbox
     const sbx = await Sandbox.connect(sbxId)
 
-    // Read file content from sandbox
-    // Remove leading slash if present and prepend /home/user/
-    const fullPath = filePath.startsWith('/')
-      ? `/home/user${filePath}`
-      : `/home/user/${filePath}`
+    // Sanitize path to prevent path traversal attacks
+    const userDir = '/home/user'
+    const normalizedPath = path.normalize(path.join(userDir, filePath))
 
-    const result = await sbx.commands.run(`cat "${fullPath}"`)
+    // Verify the normalized path is still within the allowed directory
+    if (!normalizedPath.startsWith(userDir + '/') && normalizedPath !== userDir) {
+      return new Response(
+        JSON.stringify({ error: 'Access denied: Invalid path' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const result = await sbx.commands.run(`cat "${normalizedPath}"`)
 
     if (result.exitCode !== 0) {
       console.error('Error reading file:', result.stderr)
@@ -56,7 +63,7 @@ export async function GET(
         JSON.stringify({
           error: 'Failed to read file',
           details: result.stderr,
-          path: fullPath
+          path: normalizedPath
         }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       )
@@ -117,12 +124,21 @@ export async function POST(
     // Connect to existing sandbox
     const sbx = await Sandbox.connect(sbxId)
 
-    // Write file content to sandbox
-    const fullPath = filePath.startsWith('/')
-      ? filePath.substring(1)
-      : filePath
+    // Sanitize path to prevent path traversal attacks
+    const userDir = '/home/user'
+    const normalizedPath = path.normalize(path.join(userDir, filePath))
 
-    await sbx.files.write(fullPath, content)
+    // Verify the normalized path is still within the allowed directory
+    if (!normalizedPath.startsWith(userDir + '/') && normalizedPath !== userDir) {
+      return new Response(
+        JSON.stringify({ error: 'Access denied: Invalid path' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // E2B files.write expects path relative to /home/user
+    const relativePath = normalizedPath.substring(userDir.length + 1)
+    await sbx.files.write(relativePath, content)
 
     return new Response(
       JSON.stringify({
