@@ -9,10 +9,8 @@ import { ChatPicker } from '../chat-picker'
 import { LLMModel, LLMModelConfig } from '@/lib/models'
 import { TemplateId, Templates } from '@/lib/templates'
 
-// Utility function for className merging
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
-// Embedded CSS for minimal custom styles
 const styles = `
   *:focus-visible {
     outline-offset: 0 !important;
