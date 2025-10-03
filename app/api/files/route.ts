@@ -140,12 +140,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Delete the file and all its children (for directories)
+    // Use LIKE to match all nested paths that start with this path
     const { error } = await supabase
       .from('workspace_files')
       .delete()
       .eq('user_id', user.id)
-      .or(`path.eq.${path},parent_path.eq.${path}`)
+      .or(`path.eq.${path},path.like.${path}/%`)
 
     if (error) {
       console.error('Error deleting workspace file:', error)

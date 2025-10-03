@@ -69,13 +69,12 @@ export async function POST(request: NextRequest) {
     // Calculate content size
     const sizeBytes = Buffer.byteLength(content, 'utf8')
 
-    // Update the file content
+    // Update the file content (updated_at handled by database trigger)
     const { data: file, error } = await supabase
       .from('workspace_files')
       .update({
         content,
-        size_bytes: sizeBytes,
-        updated_at: new Date().toISOString()
+        size_bytes: sizeBytes
       })
       .eq('user_id', user.id)
       .eq('path', path)
