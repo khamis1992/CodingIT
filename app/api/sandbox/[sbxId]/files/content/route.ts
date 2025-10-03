@@ -55,23 +55,13 @@ export async function GET(
       )
     }
 
-    const result = await sbx.commands.run(`cat "${normalizedPath}"`)
-
-    if (result.exitCode !== 0) {
-      console.error('Error reading file:', result.stderr)
-      return new Response(
-        JSON.stringify({
-          error: 'Failed to read file',
-          details: result.stderr,
-          path: normalizedPath
-        }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
+    // Use E2B SDK's files.read() method for robust file reading
+    const relativePath = normalizedPath.substring('/home/user/'.length)
+    const content = await sbx.files.read(relativePath)
 
     return new Response(
       JSON.stringify({
-        content: result.stdout,
+        content,
         path: filePath
       }),
       { headers: { 'Content-Type': 'application/json' } }

@@ -7,64 +7,32 @@ const sandboxTimeout = 10 * 60 * 1000
 
 async function fetchSandboxFiles(sbx: Sandbox): Promise<FileSystemNode[]> {
   try {
-    const result = await sbx.commands.run(
-      'find /home/user -type f -o -type d 2>/dev/null | grep -v "node_modules" | sort'
-    )
-
-    if (result.exitCode !== 0) {
-      console.error('Error listing files:', result.stderr)
-      return []
-    }
-
-    return parseFileTree(result.stdout)
+    // Use E2B SDK's files.list() method for robust file listing
+    const filesList = await sbx.files.list('/home/user')
+    return convertE2BFilesToTree(filesList)
   } catch (error) {
     console.error('Error fetching sandbox files:', error)
     return []
   }
 }
 
-function parseFileTree(output: string): FileSystemNode[] {
-  const lines = output.trim().split('\n').filter(line => line.trim())
-  const root: FileSystemNode[] = []
-  const nodeMap = new Map<string, FileSystemNode>()
-
-  const paths = lines
-    .map(line => line.trim())
-    .filter(path => path.startsWith('/home/user/'))
-    .sort()
-
-  for (const fullPath of paths) {
-    const relativePath = fullPath.replace('/home/user/', '')
-    if (!relativePath) continue
-
-    const parts = relativePath.split('/')
-    const name = parts[parts.length - 1]
-    const parentPath = parts.slice(0, -1).join('/')
-
-    const node: FileSystemNode = {
-      name,
-      isDirectory: false,
-      path: `/${relativePath}`,
-      children: []
-    }
-
-    nodeMap.set(relativePath, node)
-
-    if (parentPath === '') {
-      root.push(node)
-    } else {
-      const parent = nodeMap.get(parentPath)
-      if (parent) {
-        if (!parent.children) {
-          parent.children = []
-        }
-        parent.children.push(node)
-        parent.isDirectory = true
+function convertE2BFilesToTree(e2bFiles: any[]): FileSystemNode[] {
+  return e2bFiles
+    .filter(file => !file.name.includes('node_modules')) // Filter out node_modules
+    .map(file => {
+      const node: FileSystemNode = {
+        name: file.name,
+        isDirectory: file.isDir,
+        path: `/${file.path}`,
       }
-    }
-  }
 
-  return root
+      // Recursively convert children if it's a directory
+      if (file.isDir && file.children) {
+        node.children = convertE2BFilesToTree(file.children)
+      }
+
+      return node
+    })
 }
 
 export const maxDuration = 60
