@@ -60,9 +60,10 @@ export default function Home() {
   const [errorsEncountered, setErrorsEncountered] = useState(0)
   const [messages, setMessages] = useState<Message[]>([]);
   const [fragment, setFragment] = useState<DeepPartial<FragmentSchema>>();
-  const [currentTab, setCurrentTab] = useState<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor'>('code');
+  const [currentTab, setCurrentTab] = useState<'code' | 'fragment' | 'terminal' | 'interpreter' | 'editor' | 'files' | 'ide'>('code');
   const [selectedFile, setSelectedFile] = useState<{ path: string; content: string } | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(false);
   const [isAuthDialogOpen, setAuthDialog] = useState(false);
   const [authView, setAuthView] = useState<ViewType>('sign_in')
   const [, setIsRateLimited] = useState(false)
@@ -426,25 +427,50 @@ export default function Home() {
     if (!session) return
 
     try {
-      const response = await fetch('/api/files/content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionID: session.user.id,
-          path,
-          content
-        }),
-      })
+      // Check if this is a sandbox file (when result.sbxId exists)
+      if (result?.sbxId) {
+        // Save to sandbox
+        const response = await fetch(`/api/sandbox/${result.sbxId}/files/content`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            path,
+            content
+          }),
+        })
 
-      if (response.ok) {
-        // Update the selected file state if it matches the saved file
-        if (selectedFile?.path === path) {
-          setSelectedFile({ path, content })
+        if (response.ok) {
+          // Update selected file only if it's the same file being edited
+          if (selectedFile?.path === path) {
+            setSelectedFile({ path, content })
+          }
+        } else {
+          console.error('Failed to save sandbox file:', response.statusText)
         }
       } else {
-        console.error('Failed to save file:', response.statusText)
+        // Save to IDE workspace
+        const response = await fetch('/api/files/content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionID: session.user.id,
+            path,
+            content
+          }),
+        })
+
+        if (response.ok) {
+          // Update selected file only if it's the same file being edited
+          if (selectedFile?.path === path) {
+            setSelectedFile({ path, content })
+          }
+        } else {
+          console.error('Failed to save file:', response.statusText)
+        }
       }
     } catch (error) {
       console.error('Error saving file:', error)
@@ -537,7 +563,7 @@ export default function Home() {
         session ? "ml-16" : ""
       )}>
         <div
-          className={`flex flex-col w-full h-screen max-w-[800px] mx-auto px-4 ${fragment ? 'col-span-1' : 'col-span-2'}`}
+          className={`flex flex-col w-full h-screen max-w-[800px] mx-auto px-4 ${fragment || isPreviewPanelOpen ? 'col-span-1' : 'col-span-2'}`}
         >
           <NavBar
             session={session}
@@ -548,6 +574,13 @@ export default function Home() {
             canClear={messages.length > 0}
             canUndo={messages.length > 1 && !isLoading}
             onUndo={handleUndo}
+            onTogglePanel={() => {
+              setIsPreviewPanelOpen(!isPreviewPanelOpen)
+              if (!isPreviewPanelOpen) {
+                setCurrentTab('ide')
+              }
+            }}
+            isPanelOpen={isPreviewPanelOpen || !!fragment}
           />
           
           <div className="flex justify-center mb-4">
@@ -599,11 +632,15 @@ export default function Home() {
           isPreviewLoading={isPreviewLoading}
           fragment={fragment}
           result={result as ExecutionResult}
-          onClose={() => setFragment(undefined)}
+          onClose={() => {
+            setFragment(undefined)
+            setIsPreviewPanelOpen(false)
+          }}
           code={fragment?.code || ''}
           selectedFile={selectedFile}
+          onSelectFile={setSelectedFile}
           onSave={handleSaveFile}
-          executeCode={handleExecuteCode}        
+          executeCode={handleExecuteCode}
           />
       </div>
     </main>
