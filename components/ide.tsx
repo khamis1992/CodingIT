@@ -42,7 +42,7 @@ export function IDE({ sandboxId }: IDEProps = {}) {
     } else if (session) {
       // Fetch files from Supabase
       try {
-        const response = await fetch(`/api/files?sessionID=${session.user.id}`)
+        const response = await fetch('/api/files')
         if (response.ok) {
           const data = await response.json()
           setFiles(data)
@@ -79,7 +79,7 @@ export function IDE({ sandboxId }: IDEProps = {}) {
       setSelectedFile({ path, content })
     } else if (session) {
       // Load file from Supabase
-      const response = await fetch(`/api/files/content?sessionID=${session.user.id}&path=${path}`)
+      const response = await fetch(`/api/files/content?path=${encodeURIComponent(path)}`)
       const { content } = await response.json()
       setSelectedFile({ path, content })
     }
@@ -102,7 +102,7 @@ export function IDE({ sandboxId }: IDEProps = {}) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sessionID: session.user.id, path, content }),
+        body: JSON.stringify({ path, content }),
       })
     }
   }
@@ -122,7 +122,6 @@ export function IDE({ sandboxId }: IDEProps = {}) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionID: session.user.id,
           path,
           isDirectory,
           content: isDirectory ? '' : '// New file\n'
@@ -151,7 +150,6 @@ export function IDE({ sandboxId }: IDEProps = {}) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionID: session.user.id,
           path,
         }),
       })

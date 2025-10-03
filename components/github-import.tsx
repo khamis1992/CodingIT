@@ -176,7 +176,6 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              sessionID: session.user.id,
               path: `${repo.name}/${file.path}`,
               isDirectory: false,
               content: file.content,

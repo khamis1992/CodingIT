@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,26 +38,20 @@ function buildFileTree(files: any[]): any[] {
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionID = request.nextUrl.searchParams.get('sessionID')
+    const supabase = createServerClient()
 
-    if (!sessionID) {
-      return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })
+    // Get authenticated user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Fetch all workspace files for the user
     const { data: files, error } = await supabase
       .from('workspace_files')
       .select('*')
-      .eq('user_id', sessionID)
+      .eq('user_id', user.id)
       .order('path', { ascending: true })
 
     if (error) {
@@ -78,20 +72,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { sessionID, path, isDirectory, content = '' } = body
+    const { path, isDirectory, content = '' } = body
 
-    if (!sessionID || !path) {
-      return NextResponse.json({ error: 'Session ID and path are required' }, { status: 400 })
+    if (!path) {
+      return NextResponse.json({ error: 'Path is required' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabase = createServerClient()
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
+    // Get authenticated user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Extract file name and parent path
     const pathParts = path.split('/')
@@ -105,7 +99,7 @@ export async function POST(request: NextRequest) {
     const { data: file, error } = await supabase
       .from('workspace_files')
       .insert({
-        user_id: sessionID,
+        user_id: user.id,
         path,
         name,
         content,
@@ -131,26 +125,26 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const body = await request.json()
-    const { sessionID, path } = body
+    const { path } = body
 
-    if (!sessionID || !path) {
-      return NextResponse.json({ error: 'Session ID and path are required' }, { status: 400 })
+    if (!path) {
+      return NextResponse.json({ error: 'Path is required' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabase = createServerClient()
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
+    // Get authenticated user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Delete the file and all its children (for directories)
     const { error } = await supabase
       .from('workspace_files')
       .delete()
-      .eq('user_id', sessionID)
+      .eq('user_id', user.id)
       .or(`path.eq.${path},parent_path.eq.${path}`)
 
     if (error) {

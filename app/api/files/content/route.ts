@@ -1,31 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionID = request.nextUrl.searchParams.get('sessionID')
     const path = request.nextUrl.searchParams.get('path')
 
-    if (!sessionID || !path) {
-      return NextResponse.json({ error: 'Session ID and path are required' }, { status: 400 })
+    if (!path) {
+      return NextResponse.json({ error: 'Path is required' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabase = createServerClient()
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
+    // Get authenticated user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Fetch the file content
     const { data: file, error } = await supabase
       .from('workspace_files')
       .select('content, path, name, is_directory')
-      .eq('user_id', sessionID)
+      .eq('user_id', user.id)
       .eq('path', path)
       .single()
 
@@ -52,20 +51,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { sessionID, path, content } = body
+    const { path, content } = body
 
-    if (!sessionID || !path || content === undefined) {
-      return NextResponse.json({ error: 'Session ID, path, and content are required' }, { status: 400 })
+    if (!path || content === undefined) {
+      return NextResponse.json({ error: 'Path and content are required' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabase = createServerClient()
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase configuration missing' }, { status: 500 })
+    // Get authenticated user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Calculate content size
     const sizeBytes = Buffer.byteLength(content, 'utf8')
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
         size_bytes: sizeBytes,
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', sessionID)
+      .eq('user_id', user.id)
       .eq('path', path)
       .select()
       .single()
