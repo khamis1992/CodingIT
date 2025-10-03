@@ -4,13 +4,14 @@ import { FileSystemNode } from '@/components/file-tree'
 export const maxDuration = 60
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 /**
  * GET /api/sandbox/[sbxId]/files
  * Fetches the file tree from an E2B sandbox
  */
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: { sbxId: string } }
 ) {
   try {

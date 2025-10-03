@@ -5,6 +5,7 @@ import path from 'path'
 export const maxDuration = 60
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 /**
  * GET /api/sandbox/[sbxId]/files/content?path=/path/to/file
@@ -45,7 +46,11 @@ export async function GET(
 
     // Sanitize path to prevent path traversal attacks
     const userDir = '/home/user'
-    const normalizedPath = path.normalize(path.join(userDir, filePath))
+
+    // If path already starts with /home/user, use it as-is; otherwise join with userDir
+    const normalizedPath = filePath.startsWith(userDir)
+      ? path.normalize(filePath)
+      : path.normalize(path.join(userDir, filePath))
 
     // Verify the normalized path is still within the allowed directory
     if (!normalizedPath.startsWith(userDir + '/') && normalizedPath !== userDir) {
@@ -56,7 +61,7 @@ export async function GET(
     }
 
     // Use E2B SDK's files.read() method for robust file reading
-    const relativePath = normalizedPath.substring('/home/user/'.length)
+    const relativePath = normalizedPath === userDir ? '' : normalizedPath.substring(userDir.length + 1)
     const content = await sbx.files.read(relativePath)
 
     return new Response(
@@ -116,7 +121,10 @@ export async function POST(
 
     // Sanitize path to prevent path traversal attacks
     const userDir = '/home/user'
-    const normalizedPath = path.normalize(path.join(userDir, filePath))
+
+    const normalizedPath = filePath.startsWith(userDir)
+      ? path.normalize(filePath)
+      : path.normalize(path.join(userDir, filePath))
 
     // Verify the normalized path is still within the allowed directory
     if (!normalizedPath.startsWith(userDir + '/') && normalizedPath !== userDir) {
@@ -127,7 +135,7 @@ export async function POST(
     }
 
     // E2B files.write expects path relative to /home/user
-    const relativePath = normalizedPath.substring(userDir.length + 1)
+    const relativePath = normalizedPath === userDir ? '' : normalizedPath.substring(userDir.length + 1)
     await sbx.files.write(relativePath, content)
 
     return new Response(
