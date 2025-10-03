@@ -1,8 +1,39 @@
 import { FragmentSchema } from '@/lib/schema'
 import { ExecutionResultInterpreter, ExecutionResultWeb } from '@/lib/types'
 import { Sandbox } from '@e2b/code-interpreter'
+import { FileSystemNode } from '@/components/file-tree'
 
 const sandboxTimeout = 10 * 60 * 1000
+
+async function fetchSandboxFiles(sbx: Sandbox): Promise<FileSystemNode[]> {
+  try {
+    // Use E2B SDK's files.list() method for robust file listing
+    const filesList = await sbx.files.list('/home/user')
+    return convertE2BFilesToTree(filesList)
+  } catch (error) {
+    console.error('Error fetching sandbox files:', error)
+    return []
+  }
+}
+
+function convertE2BFilesToTree(e2bFiles: any[]): FileSystemNode[] {
+  return e2bFiles
+    .filter(file => !file.name.includes('node_modules')) // Filter out node_modules
+    .map(file => {
+      const node: FileSystemNode = {
+        name: file.name,
+        isDirectory: file.isDir,
+        path: `/${file.path}`,
+      }
+
+      // Recursively convert children if it's a directory
+      if (file.isDir && file.children) {
+        node.children = convertE2BFilesToTree(file.children)
+      }
+
+      return node
+    })
+}
 
 export const maxDuration = 60
 export const runtime = 'nodejs'
@@ -97,6 +128,9 @@ export async function POST(req: Request) {
       if (fragment.template === 'code-interpreter-v1') {
         const { logs, error, results } = await sbx.runCode(fragment.code || '')
 
+        // Fetch file tree after execution
+        const files = await fetchSandboxFiles(sbx)
+
         return new Response(
           JSON.stringify({
             sbxId: sbx?.sandboxId,
@@ -105,6 +139,7 @@ export async function POST(req: Request) {
             stderr: logs.stderr,
             runtimeError: error,
             cellResults: results,
+            files,
           } as ExecutionResultInterpreter),
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -116,11 +151,15 @@ export async function POST(req: Request) {
         },
       })
 
+      // Fetch file tree after project setup
+      const files = await fetchSandboxFiles(sbx)
+
       return new Response(
         JSON.stringify({
           sbxId: sbx?.sandboxId,
           template: fragment.template,
           url: `https://${sbx?.getHost(fragment.port || 80)}`,
+          files,
         } as ExecutionResultWeb),
         { headers: { 'Content-Type': 'application/json' } }
       )

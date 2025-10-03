@@ -123,7 +123,7 @@ export function ChatHistory({
 
     return (
       <div
-        className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent ${
+        className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors hover:bg-primary/5 dark:hover:bg-accent ${
           isActive ? 'bg-accent border border-border' : ''
         }`}
         onClick={() => !isEditing && onSessionSelect(session.session_id)}

@@ -71,7 +71,7 @@ export function FragmentCode({
           {validFiles.map((file) => (
             <div
               key={file.name}
-              className={`flex gap-2 select-none cursor-pointer items-center text-sm text-muted-foreground px-2 py-1 rounded-md hover:bg-muted border ${
+              className={`flex gap-2 select-none cursor-pointer items-center text-sm text-muted-foreground px-2 py-1 rounded-md hover:bg-primary/5 dark:hover:bg-muted border ${
                 file.name === currentFile ? 'bg-muted border-muted' : ''
               }`}
               onClick={() => setCurrentFile(file.name)}

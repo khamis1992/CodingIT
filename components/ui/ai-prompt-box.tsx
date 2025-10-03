@@ -8,11 +8,11 @@ import { ChatSettings } from '../chat-settings'
 import { ChatPicker } from '../chat-picker'
 import { LLMModel, LLMModelConfig } from '@/lib/models'
 import { TemplateId, Templates } from '@/lib/templates'
+import { getMatchingCommands, isSlashCommand, extractCommand, SlashCommand } from '@/lib/slash-commands'
+import { SlashCommandMenu } from '../slash-command-menu'
 
-// Utility function for className merging
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
-// Embedded CSS for minimal custom styles
 const styles = `
   *:focus-visible {
     outline-offset: 0 !important;
@@ -103,7 +103,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full bg-muted/80 p-2 hover:bg-muted transition-all">
+      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full bg-muted/80 p-2 hover:bg-primary/10 dark:hover:bg-muted transition-all">
         <X className="h-5 w-5 text-muted-foreground hover:text-primary" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -133,8 +133,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variantClasses = {
       default: "bg-primary hover:bg-primary/80 text-primary-foreground",
-      outline: "border bg-transparent hover:bg-muted",
-      ghost: "bg-transparent hover:bg-muted",
+      outline: "border bg-transparent hover:bg-primary/5 dark:hover:bg-muted",
+      ghost: "bg-transparent hover:bg-primary/5 dark:hover:bg-muted",
     };
     const sizeClasses = {
       default: "h-10 px-4 py-2",
@@ -353,12 +353,24 @@ PromptInput.displayName = "PromptInput";
 interface PromptInputTextareaProps {
   disableAutosize?: boolean;
   placeholder?: string;
+  showSlashCommands?: boolean;
+  matchingCommandsCount?: number;
+  selectedCommandIndex?: number;
+  onCommandNavigate?: (direction: 'up' | 'down') => void;
+  onCommandSelect?: () => void;
+  onCommandCancel?: () => void;
 }
 const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentProps<typeof Textarea>> = ({
   className,
   onKeyDown,
   disableAutosize = false,
   placeholder,
+  showSlashCommands = false,
+  matchingCommandsCount = 0,
+  selectedCommandIndex = 0,
+  onCommandNavigate,
+  onCommandSelect,
+  onCommandCancel,
   ...props
 }) => {
   const { value, setValue, maxHeight, onSubmit, disabled } = usePromptInput();
@@ -374,6 +386,29 @@ const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentPr
   }, [value, maxHeight, disableAutosize]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSlashCommands) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        onCommandNavigate?.('down');
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        onCommandNavigate?.('up');
+        return;
+      }
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        onCommandSelect?.();
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCommandCancel?.();
+        return;
+      }
+    }
+
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSubmit?.();
@@ -477,6 +512,9 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const [showCanvas, setShowCanvas] = React.useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement>(null);
   const promptBoxRef = React.useRef<HTMLDivElement>(null);
+  const [showSlashCommands, setShowSlashCommands] = React.useState(false);
+  const [matchingCommands, setMatchingCommands] = React.useState<SlashCommand[]>([]);
+  const [selectedCommandIndex, setSelectedCommandIndex] = React.useState(0);
 
   const handleToggleChange = (value: string) => {
     if (value === "search") {
@@ -564,8 +602,55 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
       setInput("");
       setFiles([]);
       setFilePreviews({});
+      setShowSlashCommands(false);
+      setMatchingCommands([]);
+      setSelectedCommandIndex(0);
     }
   };
+
+  const handleCommandSelect = (command: SlashCommand) => {
+    setInput(command.command + ' ');
+    setShowSlashCommands(false);
+    setMatchingCommands([]);
+    setSelectedCommandIndex(0);
+  };
+
+  const handleCommandNavigate = (direction: 'up' | 'down') => {
+    if (matchingCommands.length === 0) return;
+
+    setSelectedCommandIndex(prevIndex => {
+      if (direction === 'down') {
+        return (prevIndex + 1) % matchingCommands.length;
+      } else {
+        return prevIndex === 0 ? matchingCommands.length - 1 : prevIndex - 1;
+      }
+    });
+  };
+
+  const handleSelectCurrentCommand = () => {
+    if (matchingCommands.length > 0) {
+      handleCommandSelect(matchingCommands[selectedCommandIndex]);
+    }
+  };
+
+  const handleCancelCommands = () => {
+    setShowSlashCommands(false);
+    setMatchingCommands([]);
+    setSelectedCommandIndex(0);
+  };
+
+  React.useEffect(() => {
+    if (isSlashCommand(input)) {
+      const commands = getMatchingCommands(input);
+      setMatchingCommands(commands);
+      setShowSlashCommands(commands.length > 0);
+      setSelectedCommandIndex(0);
+    } else {
+      setShowSlashCommands(false);
+      setMatchingCommands([]);
+      setSelectedCommandIndex(0);
+    }
+  }, [input]);
 
   const handleStartRecording = () => console.log("Started recording");
 
@@ -647,7 +732,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
 
         <div
           className={cn(
-            "transition-all duration-300",
+            "transition-all duration-300 relative",
             isRecording ? "h-0 overflow-hidden opacity-0" : "opacity-100"
           )}
         >
@@ -662,7 +747,21 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                 : placeholder
             }
             className="text-base"
+            showSlashCommands={showSlashCommands}
+            matchingCommandsCount={matchingCommands.length}
+            selectedCommandIndex={selectedCommandIndex}
+            onCommandNavigate={handleCommandNavigate}
+            onCommandSelect={handleSelectCurrentCommand}
+            onCommandCancel={handleCancelCommands}
           />
+          {showSlashCommands && (
+            <SlashCommandMenu
+              commands={matchingCommands}
+              selectedIndex={selectedCommandIndex}
+              onSelect={handleCommandSelect}
+              position={{ top: 0, left: 0 }}
+            />
+          )}
         </div>
 
         {isRecording && (
@@ -683,7 +782,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
             <PromptInputAction tooltip="Upload image">
               <button
                 onClick={() => uploadInputRef.current?.click()}
-                className="flex h-8 w-8 text-muted-foreground cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-muted/30 hover:text-primary"
+                className="flex h-8 w-8 text-muted-foreground cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-primary/5 dark:hover:bg-muted/30 hover:text-primary"
                 disabled={isRecording}
               >
                 <Paperclip className="h-5 w-5 transition-colors" />
@@ -826,10 +925,10 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               className={cn(
                 "h-8 w-8 rounded-full transition-all duration-200",
                 isRecording
-                  ? "bg-transparent hover:bg-muted/30 text-red-500 hover:text-red-400"
+                  ? "bg-transparent hover:bg-red-50 dark:hover:bg-muted/30 text-red-500 hover:text-red-400"
                   : hasContent
                   ? "bg-primary hover:bg-primary/80 text-primary-foreground"
-                  : "bg-transparent hover:bg-muted/30 text-muted-foreground hover:text-primary"
+                  : "bg-transparent hover:bg-primary/5 dark:hover:bg-muted/30 text-muted-foreground hover:text-primary"
               )}
               onClick={() => {
                 if (isRecording) setIsRecording(false);

@@ -151,18 +151,49 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
 
     setIsImporting(true)
     setSelectedRepo(repo)
-    
-    try {
-      // Simulate import process - in a real implementation, this would
-      // clone the repository or fetch files and store them
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
 
-      // For demo purposes, we'll just count this as a successful import
-      const importedFilesCount = Math.floor(Math.random() * 50) + 10 // Random number of files
+    try {
+      const [owner, repoName] = repo.full_name.split('/')
+
+      // Fetch root directory contents
+      const rootResponse = await fetch(`/api/github/repos/${owner}/${repoName}`)
+      if (!rootResponse.ok) {
+        throw new Error('Failed to fetch repository contents')
+      }
+
+      const rootData = await rootResponse.json()
+
+      // Fetch all files recursively
+      const allFiles = await fetchAllFiles(owner, repoName, rootData.contents || [])
+
+      // Save files to workspace using batch endpoint
+      const filesToImport = allFiles.map(file => ({
+        path: `${repo.name}/${file.path}`,
+        content: file.content,
+        isDirectory: false
+      }))
+
+      const response = await fetch('/api/files/batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          files: filesToImport
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to import files')
+      }
+
+      const result = await response.json()
+      const importedCount = result.imported || 0
 
       toast({
         title: "Success",
-        description: `Successfully imported ${repo.name} with ${importedFilesCount} files. Repository information has been saved.`,
+        description: `Successfully imported ${repo.name} with ${importedCount} files.`,
       })
 
       // Update usage limits
@@ -174,11 +205,11 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
           can_import: remainingImports > 0
         })
       }
-      
+
       if (onImport) {
-        onImport(repo, []) // Files are now handled by the API
+        onImport(repo, allFiles)
       }
-      
+
     } catch (error) {
       console.error('Error importing repository:', error)
       toast({

@@ -1,8 +1,10 @@
 import { TemplateId } from './templates'
 import { ExecutionError, Result } from '@e2b/code-interpreter'
+import { FileSystemNode } from '@/components/file-tree'
 
 type ExecutionResultBase = {
   sbxId: string
+  files?: FileSystemNode[]
 }
 
 export type ExecutionResultInterpreter = ExecutionResultBase & {

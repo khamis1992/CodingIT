@@ -1,6 +1,4 @@
-# You can use most Debian-based base images
 FROM node:21-slim
-FROM e2b AS Sandbox
 
 WORKDIR /home/user/vue-app
 
@@ -10,3 +8,6 @@ COPY nuxt.config.ts /home/user/vue-app/nuxt.config.ts
 
 # Move the Vue app to the home directory and remove the Vue directory
 RUN mv /home/user/vue-app/* /home/user/ && rm -rf /home/user/vue-app
+
+# Set working directory to user home
+WORKDIR /home/user

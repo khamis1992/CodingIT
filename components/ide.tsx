@@ -9,7 +9,11 @@ import { Button } from './ui/button'
 import { Github, FolderOpen } from 'lucide-react'
 import Spinner from './ui/spinner'
 
-export function IDE() {
+interface IDEProps {
+  sandboxId?: string // Optional sandbox ID for viewing sandbox files
+}
+
+export function IDE({ sandboxId }: IDEProps = {}) {
   const { session, loading } = useAuth(() => {}, () => {})
   const [files, setFiles] = useState<FileSystemNode[]>([])
   const [selectedFile, setSelectedFile] = useState<{
@@ -17,29 +21,47 @@ export function IDE() {
     content: string
   } | null>(null)
   const [showGitHubImport, setShowGitHubImport] = useState(false)
+  const isSandboxMode = !!sandboxId
 
   const fetchFiles = useCallback(async () => {
-    if (!session) return
-    try {
-      const response = await fetch(`/api/files?sessionID=${session.user.id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setFiles(data)
-      } else {
-        console.error('Failed to fetch files')
+    if (isSandboxMode && sandboxId) {
+      // Fetch files from sandbox
+      try {
+        const response = await fetch(`/api/sandbox/${sandboxId}/files`)
+        if (response.ok) {
+          const data = await response.json()
+          setFiles(data.files || [])
+        } else {
+          console.error('Failed to fetch sandbox files')
+          setFiles([])
+        }
+      } catch (error) {
+        console.error('Error fetching sandbox files:', error)
         setFiles([])
       }
-    } catch (error) {
-      console.error('Error fetching files:', error)
-      setFiles([])
+    } else if (session) {
+      // Fetch files from Supabase
+      try {
+        const response = await fetch('/api/files')
+        if (response.ok) {
+          const data = await response.json()
+          setFiles(data)
+        } else {
+          console.error('Failed to fetch files')
+          setFiles([])
+        }
+      } catch (error) {
+        console.error('Error fetching files:', error)
+        setFiles([])
+      }
     }
-  }, [session])
+  }, [session, isSandboxMode, sandboxId])
 
   useEffect(() => {
-    if (session) {
+    if (isSandboxMode || session) {
       fetchFiles()
     }
-  }, [session, fetchFiles])
+  }, [session, isSandboxMode, fetchFiles])
 
   if (loading) {
     return (
@@ -50,24 +72,48 @@ export function IDE() {
   }
 
   async function handleSelectFile(path: string) {
-    if (!session) return
-    const response = await fetch(`/api/files/content?sessionID=${session.user.id}&path=${path}`)
-    const { content } = await response.json()
-    setSelectedFile({ path, content })
+    if (isSandboxMode && sandboxId) {
+      // Load file from sandbox
+      const response = await fetch(`/api/sandbox/${sandboxId}/files/content?path=${encodeURIComponent(path)}`)
+      const { content } = await response.json()
+      setSelectedFile({ path, content })
+    } else if (session) {
+      // Load file from Supabase
+      const response = await fetch(`/api/files/content?path=${encodeURIComponent(path)}`)
+      const { content } = await response.json()
+      setSelectedFile({ path, content })
+    }
   }
 
   async function handleSaveFile(path: string, content: string) {
-    if (!session) return
-    await fetch('/api/files/content', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ sessionID: session.user.id, path, content }),
-    })
+    if (isSandboxMode && sandboxId) {
+      // Save file to sandbox
+      await fetch(`/api/sandbox/${sandboxId}/files/content`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path, content }),
+      })
+    } else if (session) {
+      // Save file to Supabase
+      await fetch('/api/files/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path, content }),
+      })
+    }
   }
 
   async function handleCreateFile(path: string, isDirectory: boolean) {
+    // File creation in sandbox mode is not supported via this UI
+    if (isSandboxMode) {
+      console.log('File creation in sandbox mode not supported')
+      return
+    }
+
     if (!session) return
     try {
       const response = await fetch('/api/files', {
@@ -76,7 +122,6 @@ export function IDE() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionID: session.user.id,
           path,
           isDirectory,
           content: isDirectory ? '' : '// New file\n'
@@ -91,6 +136,12 @@ export function IDE() {
   }
 
   async function handleDeleteFile(path: string) {
+    // File deletion in sandbox mode is not supported via this UI
+    if (isSandboxMode) {
+      console.log('File deletion in sandbox mode not supported')
+      return
+    }
+
     if (!session) return
     try {
       const response = await fetch('/api/files', {
@@ -99,7 +150,6 @@ export function IDE() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionID: session.user.id,
           path,
         }),
       })
@@ -117,11 +167,12 @@ export function IDE() {
   async function handleImportRepository(repo: any, repoFiles: any[]) {
     if (!session) return
     try {
-      // The backend now handles file imports. We just need to refresh the file list.
+      // The files have been imported via the GitHubImport component
+      // Just refresh the file list to show the newly imported files
       await fetchFiles()
       setShowGitHubImport(false)
     } catch (error) {
-      console.error('Error importing repository:', error)
+      console.error('Error after repository import:', error)
     }
   }
 
@@ -147,17 +198,19 @@ export function IDE() {
             size="sm"
           >
             <FolderOpen className="h-4 w-4 mr-2" />
-            Refresh Files
+            {isSandboxMode ? 'Refresh Sandbox Files' : 'Refresh Files'}
           </Button>
-          <Button
-            onClick={() => setShowGitHubImport(true)}
-            className="w-full"
-            variant="outline"
-            size="sm"
-          >
-            <Github className="h-4 w-4 mr-2" />
-            Import from GitHub
-          </Button>
+          {!isSandboxMode && (
+            <Button
+              onClick={() => setShowGitHubImport(true)}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              <Github className="h-4 w-4 mr-2" />
+              Import from GitHub
+            </Button>
+          )}
         </div>
         <FileTree 
           files={files} 
