@@ -166,29 +166,30 @@ export function GitHubImport({ onImport, onClose }: GitHubImportProps) {
       // Fetch all files recursively
       const allFiles = await fetchAllFiles(owner, repoName, rootData.contents || [])
 
-      // Save files to workspace
-      let importedCount = 0
-      for (const file of allFiles) {
-        try {
-          const response = await fetch('/api/files', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              path: `${repo.name}/${file.path}`,
-              isDirectory: false,
-              content: file.content,
-            }),
-          })
+      // Save files to workspace using batch endpoint
+      const filesToImport = allFiles.map(file => ({
+        path: `${repo.name}/${file.path}`,
+        content: file.content,
+        isDirectory: false
+      }))
 
-          if (response.ok) {
-            importedCount++
-          }
-        } catch (error) {
-          console.warn(`Failed to import file ${file.path}:`, error)
-        }
+      const response = await fetch('/api/files/batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          files: filesToImport
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to import files')
       }
+
+      const result = await response.json()
+      const importedCount = result.imported || 0
 
       toast({
         title: "Success",
