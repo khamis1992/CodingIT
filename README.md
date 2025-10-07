@@ -1,4 +1,4 @@
-# CodinIT.dev
+![CodinIT.dev: AI-Powered Full-Stack Web Development in the Browser](https://github.com/user-attachments/assets/de684e88-a65c-42ea-b067-d1a3bc85a420)
 
 <p align="center">
   <strong>AI-Powered Code Execution and Development Platform</strong>
