@@ -47,10 +47,17 @@ next-env.d.ts
 
 
 .env
-
-scripts
 .vscode
 mcp.json
-
 CLAUDE.md
-.claude
+# Workspace documentation (keep these files)
+
+# Apps workspace - ignore build artifacts only
+apps/*/node_modules/
+apps/*/build/
+apps/*/dist/
+apps/*/.next/
+apps/*/out/
+apps/*/.env
+apps/*/.env.local
+apps/*/pnpm-lock.yaml

@@ -1,3 +1,7 @@
+packages:
+  - '.'
+  - 'apps/*'
+
 onlyBuiltDependencies:
   - '@swc/core'
   - '@vercel/speed-insights'
