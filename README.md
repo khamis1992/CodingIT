@@ -1,7 +1,7 @@
 ![CodinIT.dev: AI-Powered Full-Stack Web Development in the Browser](https://github.com/user-attachments/assets/de684e88-a65c-42ea-b067-d1a3bc85a420)
 
 <p align="center">
-  <strong>AI-Powered Code Execution and Development Platform</strong>
+  <strong>CodinIT.dev Build With AI In Local Enviroment or With Our Web App</strong>
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@
 - 📦 **Package Installation** - Install any npm or pip package on the fly
 
 ### Supported LLM Providers
-- 🔸 **OpenAI** (GPT-4, GPT-3.5)
+- 🔸 **OpenAI** (GPT-5, GPT-4)
 - 🔸 **Anthropic** (Claude models)
 - 🔸 **Google AI** (Gemini)
 - 🔸 **Groq** (Fast inference)
@@ -86,7 +86,7 @@
 In your terminal:
 
 ```
-git clone https://github.com/e2b-dev/fragments.git
+git clone https://github.com/Gerome-Elassaad/CodingIT.git
 ```
 
 ### 2. Install the dependencies
@@ -94,7 +94,7 @@ git clone https://github.com/e2b-dev/fragments.git
 Enter the repository:
 
 ```
-cd fragments
+cd CodingIT
 ```
 
 Run the following to install the required dependencies for both workspaces:
@@ -190,123 +190,10 @@ pnpm desktop:build:win    # Windows only
 pnpm desktop:build:linux  # Linux only
 ```
 
-## Customize
-
-### Adding custom personas
-
-1. Make sure [E2B CLI](https://e2b.dev/docs/cli) is installed and you're logged in.
-
-2. Add a new folder under [sandbox-templates/](sandbox-templates/)
-
-3. Initialize a new template using E2B CLI:
-
-    ```
-    e2b template init
-    ```
-
-    This will create a new file called `e2b.Dockerfile`.
-
-4. Adjust the `e2b.Dockerfile`
-
-    Here's an example streamlit template:
-
-    ```Dockerfile
-    # You can use most Debian-based base images
-    FROM python:3.19-slim
-
-    RUN pip3 install --no-cache-dir streamlit pandas numpy matplotlib requests seaborn plotly
-
-    # Copy the code to the container
-    WORKDIR /home/user
-    COPY . /home/user
-    ```
-
-5. Specify a custom start command in `e2b.toml`:
-
-    ```toml
-    start_cmd = "cd /home/user && streamlit run app.py"
-    ```
-
-6. Deploy the template with the E2B CLI
-
-    ```
-    e2b template build --name <template-name>
-    ```
-
-    After the build has finished, you should get the following message:
-
-    ```
-    ✅ Building sandbox template <template-id> <template-name> finished.
-    ```
-
-7. Open [lib/templates.json](lib/templates.json) in your code editor.
-
-    Add your new template to the list. Here's an example for Streamlit:
-
-    ```json
-    "streamlit-developer": {
-      "name": "Streamlit developer",
-      "lib": [
-        "streamlit",
-        "pandas",
-        "numpy",
-        "matplotlib",
-        "request",
-        "seaborn",
-        "plotly"
-      ],
-      "file": "app.py",
-      "instructions": "A streamlit app that reloads automatically.",
-      "port": 8501 // can be null
-    },
-    ```
-
-    Provide a template id (as key), name, list of dependencies, entrypoint and a port (optional). You can also add additional instructions that will be given to the LLM.
-
-4. Optionally, add a new logo under [public/thirdparty/templates](public/thirdparty/templates)
-
-### Adding custom LLM models
-
-1. Open [lib/models.json](lib/models.ts) in your code editor.
-
-2. Add a new entry to the models list:
-
-    ```json
-    {
-      "id": "mistral-large",
-      "name": "Mistral Large",
-      "provider": "Ollama",
-      "providerId": "ollama"
-    }
-    ```
-
-    Where id is the model id, name is the model name (visible in the UI), provider is the provider name and providerId is the provider tag (see [adding providers](#adding-custom-llm-providers) below).
-
-### Adding custom LLM providers
-
-1. Open [lib/models.ts](lib/models.ts) in your code editor.
-
-2. Add a new entry to the `providerConfigs` list:
-
-    Example for fireworks:
-
-    ```ts
-    fireworks: () => createOpenAI({ apiKey: apiKey || process.env.FIREWORKS_API_KEY, baseURL: baseURL || 'https://api.fireworks.ai/inference/v1' })(modelNameString),
-    ```
-
-3. Optionally, adjust the default structured output mode in the `getDefaultMode` function:
-
-    ```ts
-    if (providerId === 'fireworks') {
-      return 'json'
-    }
-    ```
-
-4. Optionally, add a new logo under [public/thirdparty/logos](public/thirdparty/logos)
-
 ## Contributing
 
 As an open-source project, we welcome contributions from the community. If you are experiencing any bugs or want to add some improvements, please feel free to open an issue or pull request.
+
 ## 🔧 Customize
 
 ### Adding Custom Development Templates
