@@ -206,38 +206,18 @@ export default function GitLabTab() {
             <div className="w-12 h-12 rounded-full border-2 border-codinit-elements-item-contentAccent flex items-center justify-center bg-codinit-elements-background-depth-2 overflow-hidden">
               {connection.user.avatar_url &&
               connection.user.avatar_url !== 'null' &&
-              connection.user.avatar_url !== '' ? (
+              connection.user.avatar_url !== '' && !avatarLoadError ? (
                 <img
                   src={connection.user.avatar_url}
                   alt={connection.user.username}
                   className="w-full h-full rounded-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-
-                    const parent = target.parentElement;
-
-                    if (parent) {
-                      parent.innerHTML = (connection.user?.name || connection.user?.username || 'U')
-                        .charAt(0)
-                        .toUpperCase();
-                      parent.classList.add(
-                        'text-white',
-                        'font-semibold',
-                        'text-sm',
-                        'flex',
-                        'items-center',
-                        'justify-center',
-                      );
-                    }
-                  }}
+                  onError={() => setAvatarLoadError(true)}
                 />
               ) : (
                 <div className="w-full h-full rounded-full bg-codinit-elements-item-contentAccent flex items-center justify-center text-white font-semibold text-sm">
                   {(connection.user?.name || connection.user?.username || 'U').charAt(0).toUpperCase()}
                 </div>
               )}
-            </div>
             <div>
               <h4 className="text-sm font-medium text-codinit-elements-textPrimary">
                 {connection.user?.name || connection.user?.username}
