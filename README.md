@@ -1,5 +1,16 @@
-![opengraph](https://github.com/user-attachments/assets/de684e88-a65c-42ea-b067-d1a3bc85a420)
+# CodinIT.dev
 
+<p align="center">
+  <strong>AI-Powered Code Execution and Development Platform</strong>
+</p>
+
+<p align="center">
+  <a href="https://docs.codinit.dev">Documentation</a> •
+  <a href="https://codinit.dev">Website</a> •
+  <a href="https://gerome-elassaad.github.io/codinit-app">Desktop App Docs</a> •
+  <a href="#features">Features</a> •
+  <a href="#get-started">Get Started</a>
+</p>
 
 <p align="center">
   <a href="https://e2b.dev/startups">
@@ -7,31 +18,59 @@
   </a>
 </p>
 
+---
 
-## Features
+## 📦 Workspace Structure
 
-- Based on Next.js 14 (App Router, Server Actions), shadcn/ui, TailwindCSS, Vercel AI SDK.
-- Streaming in the UI.
-- Can install and use any package from npm, pip.
-- Supported stacks ([add your own](#adding-custom-personas)):
-  - 🔸 Python interpreter
-  - 🔸 Next.js
-  - 🔸 Vue.js
-  - 🔸 Streamlit
-  - 🔸 Gradio
-- Supported LLM Providers ([add your own](#adding-custom-llm-models)):
-  - 🔸 OpenAI
-  - 🔸 Anthropic
-  - 🔸 Google AI
-  - 🔸 Mistral
-  - 🔸 Groq
-  - 🔸 Fireworks
-  - 🔸 Together AI
-  - 🔸 Ollama
+> **This is a pnpm workspace monorepo** containing two applications:
 
-**Make sure to give us a star!**
+| Application | Location | Framework | Port | Deploy |
+|-------------|----------|-----------|------|--------|
+| **@codinit/web** | `/` (root) | Next.js 14 | 3000 | Vercel |
+| **@codinit/desktop** | `/apps/desktop` | Remix + Electron | 5173 | Desktop installers |
 
-This is an open-source version of apps like [Anthropic's Claude Artifacts](https://www.anthropic.com/news/claude-3-5-sonnet), Vercel [v0](https://v0.dev), or [GPT Engineer](https://gptengineer.app).
+📚 **[WORKSPACE.md](WORKSPACE.md)** - Complete workspace guide (commands, deployment, architecture)
+
+---
+
+## ✨ Features
+
+### Core Capabilities
+- 🚀 **AI-Powered Code Generation** - Multiple LLM providers (OpenAI, Anthropic, Google AI, and more)
+- ⚡ **Real-time Code Execution** - Secure E2B sandboxes with live preview
+- 📊 **Multiple Development Environments** - Python, Next.js, Vue.js, Streamlit, Gradio
+- 💬 **Streaming AI Responses** - Real-time UI updates with Vercel AI SDK
+- 🔐 **Secure Authentication** - Supabase auth with Row Level Security
+- 📦 **Package Installation** - Install any npm or pip package on the fly
+
+### Supported LLM Providers
+- 🔸 **OpenAI** (GPT-4, GPT-3.5)
+- 🔸 **Anthropic** (Claude models)
+- 🔸 **Google AI** (Gemini)
+- 🔸 **Groq** (Fast inference)
+- 🔸 **Fireworks AI**
+- 🔸 **Together AI**
+- 🔸 **Mistral AI**
+- 🔸 **xAI** (Grok)
+- 🔸 **DeepSeek**
+- 🔸 **Ollama** (Local models)
+
+### Development Environments
+- 🐍 **Python Data Analyst** - Jupyter-style execution with data visualization
+- ⚛️ **Next.js Developer** - Full-stack React applications
+- 🎨 **Vue.js Developer** - Vue 3 applications
+- 📈 **Streamlit Developer** - Data apps and dashboards
+- 🎯 **Gradio Developer** - ML model interfaces
+
+### Built With
+- **Next.js 14** (App Router, Server Actions)
+- **shadcn/ui** + **TailwindCSS** for beautiful UI
+- **Vercel AI SDK** for LLM streaming
+- **E2B** for secure code execution
+- **Supabase** for database and auth
+- **TypeScript** for type safety
+
+**⭐ Give us a star if you like this project!**
 
 ## Get started
 
@@ -58,11 +97,13 @@ Enter the repository:
 cd fragments
 ```
 
-Run the following to install the required dependencies:
+Run the following to install the required dependencies for both workspaces:
 
 ```
-npm i
+pnpm install
 ```
+
+> **Note:** This project uses **pnpm workspaces**. The command above installs dependencies for both the web app and desktop app.
 
 ### 3. Set the environment variables
 
@@ -118,14 +159,35 @@ NEXT_PUBLIC_POSTHOG_HOST=
 
 ### 4. Start the development server
 
+**Web App (Next.js):**
 ```
-npm run dev
+pnpm dev
+```
+Visit http://localhost:3000
+
+**Desktop App (Electron + Remix):**
+```
+pnpm desktop:dev
+```
+Or:
+```
+cd apps/desktop && pnpm dev
+```
+Visit http://localhost:5173
+
+### 5. Build the applications
+
+**Web App:**
+```
+pnpm build
 ```
 
-### 5. Build the web app
-
+**Desktop App:**
 ```
-npm run build
+pnpm desktop:build        # Build all platforms
+pnpm desktop:build:mac    # macOS only
+pnpm desktop:build:win    # Windows only
+pnpm desktop:build:linux  # Linux only
 ```
 
 ## Customize
