@@ -102,10 +102,6 @@ while IFS= read -r commit_line; do
         continue
     fi
 
-    HASH=$(echo "$commit_line" | cut -d'|' -f1)
-    COMMIT_MSG=$(echo "$commit_line" | cut -d'|' -f2)
-    BODY=$(echo "$commit_line" | cut -d'|' -f3)
-
     
     # Validate hash format
     if [[ ! $HASH =~ ^[a-f0-9]{40}$ ]]; then
