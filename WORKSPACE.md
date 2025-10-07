@@ -444,4 +444,4 @@ pnpm build
 
 **Last Updated:** 2025-10-07
 **Workspace Version:** 1.0
-**Package Manager:** pnpm 10.17.1
+**Package Manager:** pnpm 10.18.0

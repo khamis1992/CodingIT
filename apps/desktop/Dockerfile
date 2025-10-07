@@ -14,7 +14,7 @@ ENV HUSKY=0
 ENV CI=true
 
 # Use pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+RUN corepack enable && corepack prepare pnpm@10.18.0 --activate
 
 # Accept (optional) build-time public URL for Remix/Vite (Coolify can pass it)
 ARG VITE_PUBLIC_APP_URL
@@ -37,11 +37,13 @@ RUN pnpm prune --prod --ignore-scripts
 
 
 # ---- runtime stage ----
+# Note: This is for deploying the desktop app's Remix server to web platforms like Coolify
+# For native desktop installers, use electron:build:* scripts instead
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=5173
 ENV HOST=0.0.0.0
 
 # Install curl so Coolify’s healthcheck works inside the image
@@ -53,11 +55,11 @@ COPY --from=build /app/build /app/build
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
 
-EXPOSE 3000
+EXPOSE 5173
 
 # Healthcheck for Coolify
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
-  CMD curl -fsS http://localhost:3000/ || exit 1
+  CMD curl -fsS http://localhost:5173/ || exit 1
 
 # Start the Remix server
 CMD ["node", "build/server/index.js"]
