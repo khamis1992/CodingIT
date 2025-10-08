@@ -1,336 +1,438 @@
-![CodinIT.dev: AI-Powered Full-Stack Web Development in the Browser](https://github.com/user-attachments/assets/de684e88-a65c-42ea-b067-d1a3bc85a420)
+<div align="center">
 
-<p align="center">
-  <strong>CodinIT.dev Build With AI In Local Enviroment or With Our Web App</strong>
-</p>
+<img src="https://codinit.dev/hero-image.png" alt="CodingIT Banner" width="100%"/>
 
-<p align="center">
-  <a href="https://docs.codinit.dev">Documentation</a> •
-  <a href="https://codinit.dev">Website</a> •
-  <a href="https://gerome-elassaad.github.io/codinit-app">Desktop App Docs</a> •
-  <a href="#features">Features</a> •
-  <a href="#get-started">Get Started</a>
-</p>
+### AI-Powered Full-Stack Development Platform
 
-<p align="center">
-  <a href="https://e2b.dev/startups">
-    <img src="https://img.shields.io/badge/SPONSORED%20BY-E2B%20FOR%20STARTUPS-32CD32?style=for-the-badge" alt="SPONSORED BY E2B.DEV" />
-  </a>
-</p>
+**Build production-ready applications using natural language with 50+ AI models**
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Version](https://img.shields.io/badge/version-0.2.3-green.svg)](./package.json)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+
+[Live Demo](https://codingit.vercel.app) • [Web App Docs](https://docs.codinit.dev) • [Desktop App Docs](https://gerome-elassaad.github.io/codinit-app) • [Report Bug](https://github.com/Gerome-Elassaad/CodingIT/issues) • [Request Feature](https://github.com/Gerome-Elassaad/CodingIT/discussions)
+
+</div>
 
 ---
 
-## 📦 Workspace Structure
+## 🎯 What is CodingIT?
 
-> **This is a pnpm workspace monorepo** containing two applications:
+CodingIT is an **open-source AI development platform** that transforms natural language into working applications. Think of it as your AI co-developer that can build, test, and deploy full-stack applications across multiple frameworks.
 
-| Application | Location | Framework | Port | Deploy |
-|-------------|----------|-----------|------|--------|
-| **@codinit/web** | `/` (root) | Next.js 14 | 3000 | Vercel |
-| **@codinit/desktop** | `/apps/desktop` | Remix + Electron | 5173 | Desktop installers |
-
-📚 **[WORKSPACE.md](WORKSPACE.md)** - Complete workspace guide (commands, deployment, architecture)
+Unlike traditional AI coding assistants, CodingIT provides:
+- **Live Sandbox Execution** - See your code running in real-time with E2B secure containers
+- **Multi-Framework Support** - Next.js, Vue, Streamlit, Gradio, and Python data analysis
+- **50+ AI Models** - From GPT-5 and Claude 4 to local Ollama models
+- **Desktop & Web Apps** - Run locally with Electron or deploy to the cloud
+- **Production-Ready Code** - Full authentication, database, and deployment configurations
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-### Core Capabilities
-- 🚀 **AI-Powered Code Generation** - Multiple LLM providers (OpenAI, Anthropic, Google AI, and more)
-- ⚡ **Real-time Code Execution** - Secure E2B sandboxes with live preview
-- 📊 **Multiple Development Environments** - Python, Next.js, Vue.js, Streamlit, Gradio
-- 💬 **Streaming AI Responses** - Real-time UI updates with Vercel AI SDK
-- 🔐 **Secure Authentication** - Supabase auth with Row Level Security
-- 📦 **Package Installation** - Install any npm or pip package on the fly
+### 🤖 Comprehensive AI Model Support
 
-### Supported LLM Providers
-- 🔸 **OpenAI** (GPT-5, GPT-4)
-- 🔸 **Anthropic** (Claude models)
-- 🔸 **Google AI** (Gemini)
-- 🔸 **Groq** (Fast inference)
-- 🔸 **Fireworks AI**
-- 🔸 **Together AI**
-- 🔸 **Mistral AI**
-- 🔸 **xAI** (Grok)
-- 🔸 **DeepSeek**
-- 🔸 **Ollama** (Local models)
+**50+ LLM Models** across 10 providers:
+- **OpenAI**: GPT-5, GPT-4.5, GPT-4o, o1, o3 series
+- **Anthropic**: Claude 4.1 Opus, Claude 3.7/3.5 Sonnet, Haiku
+- **Google AI**: Gemini 2.5 Pro/Flash, Gemini 2.0, Gemini 1.5
+- **xAI**: Grok 4, Grok 3 (+ Mini/Fast variants)
+- **Mistral**: Magistral, Pixtral Large, Codestral
+- **Fireworks AI**: Qwen3 Coder 480B, DeepSeek R1, Llama 4
+- **Groq**: Ultra-fast inference with Llama 3.3
+- **DeepSeek**: DeepSeek V3 reasoning models
+- **Together AI**: Open-source model hosting
+- **Ollama**: Run models completely offline
 
-### Development Environments
-- 🐍 **Python Data Analyst** - Jupyter-style execution with data visualization
-- ⚛️ **Next.js Developer** - Full-stack React applications
-- 🎨 **Vue.js Developer** - Vue 3 applications
-- 📈 **Streamlit Developer** - Data apps and dashboards
-- 🎯 **Gradio Developer** - ML model interfaces
+### 🛡️ Secure Code Execution
 
-### Built With
-- **Next.js 14** (App Router, Server Actions)
-- **shadcn/ui** + **TailwindCSS** for beautiful UI
-- **Vercel AI SDK** for LLM streaming
-- **E2B** for secure code execution
-- **Supabase** for database and auth
-- **TypeScript** for type safety
+- **E2B Sandboxes**: Isolated, secure containers for code execution
+- **Live Preview**: Real-time application rendering with hot reload
+- **Package Management**: Install npm and pip packages on-the-fly
+- **Multi-Environment**: Python, Node.js, Next.js, Vue, Streamlit, Gradio
+- **File System**: Full file tree navigation and editing
 
-**⭐ Give us a star if you like this project!**
+### 🎨 Development Environments
 
-## Get started
+| Environment | Description | Use Cases |
+|------------|-------------|-----------|
+| **Python Data Analyst** | Jupyter-style notebook execution | Data analysis, visualization, ML experiments |
+| **Next.js Developer** | Full-stack React with API routes | Web applications, SaaS products |
+| **Vue.js Developer** | Vue 3 with Composition API | SPAs, component libraries |
+| **Streamlit Developer** | Interactive data apps | Data dashboards, ML demos |
+| **Gradio Developer** | ML model interfaces | Model deployment, prototyping |
+
+### 🏗️ Architecture
+
+**Monorepo Structure** - Two applications in one workspace:
+
+```
+CodingIT/
+├── Web App (@codinit/web)          # Next.js 14 cloud platform
+│   ├── Port: 3000
+│   ├── Deploy: Vercel
+│   ├── Runtime: E2B Cloud Sandboxes
+│   └── Database: Supabase PostgreSQL
+│
+└── Desktop App (@codinit/desktop)  # Electron native application
+    ├── Port: 5173
+    ├── Deploy: Desktop installers (Mac/Windows/Linux)
+    ├── Runtime: WebContainer (in-browser)
+    └── Database: Cloudflare D1
+```
+
+### 🔐 Enterprise Features
+
+- **Supabase Authentication** - Secure user management with Row Level Security
+- **Team Management** - Multi-user workspaces with role-based access
+- **Usage Tracking** - Monitor API calls, storage, and execution time
+- **Stripe Billing** - Pro ($9/mo) and Enterprise ($25/mo) plans
+- **Chat Persistence** - Automatic session storage with search
+- **GitHub Integration** - Import repositories directly
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- [git](https://git-scm.com)
-- Recent version of [Node.js](https://nodejs.org) and npm package manager
-- [E2B API Key](https://e2b.dev)
-- LLM Provider API Key
+- [Node.js](https://nodejs.org) v18+ and npm
+- [pnpm](https://pnpm.io) v10.17+
+- [E2B API Key](https://e2b.dev/dashboard) (for code execution)
+- AI Provider API Key (OpenAI, Anthropic, etc.)
 
-### 1. Clone the repository
+### Installation
 
-In your terminal:
-
-```
+**1. Clone the repository**
+```bash
 git clone https://github.com/Gerome-Elassaad/CodingIT.git
-```
-
-### 2. Install the dependencies
-
-Enter the repository:
-
-```
 cd CodingIT
 ```
 
-Run the following to install the required dependencies for both workspaces:
-
-```
+**2. Install dependencies**
+```bash
 pnpm install
 ```
 
-> **Note:** This project uses **pnpm workspaces**. The command above installs dependencies for both the web app and desktop app.
+**3. Configure environment variables**
 
-### 3. Set the environment variables
+Create `.env.local` file:
 
-Create a `.env.local` file and set the following:
+```env
+# E2B Code Execution (Required)
+E2B_API_KEY=your_e2b_api_key
 
-```sh
-# Get your API key here - https://e2b.dev/
-E2B_API_KEY="your-e2b-api-key"
+# Supabase (Required for auth & database)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# OpenAI API Key
-OPENAI_API_KEY=
+# AI Providers (Add at least one)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_GENERATIVE_AI_API_KEY=AI...
+XAI_API_KEY=xai-...
+MISTRAL_API_KEY=...
+GROQ_API_KEY=gsk_...
+FIREWORKS_API_KEY=fw_...
+TOGETHER_API_KEY=...
+DEEPSEEK_API_KEY=...
 
-# Other providers
-ANTHROPIC_API_KEY=
-GROQ_API_KEY=
-FIREWORKS_API_KEY=
-TOGETHER_API_KEY=
-GOOGLE_AI_API_KEY=
-GOOGLE_VERTEX_CREDENTIALS=
-MISTRAL_API_KEY=
-XAI_API_KEY=
+# Ollama (Optional - for local models)
+OLLAMA_BASE_URL=http://localhost:11434
 
-### Optional env vars
-
-# Domain of the site
-NEXT_PUBLIC_SITE_URL=
-
-# Rate limit
-RATE_LIMIT_MAX_REQUESTS=
-RATE_LIMIT_WINDOW=
-
-# Vercel/Upstash KV (short URLs, rate limiting)
-KV_REST_API_URL=
-KV_REST_API_TOKEN=
-
-# Supabase (auth)
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-
-# PostHog (analytics)
-NEXT_PUBLIC_POSTHOG_KEY=
-NEXT_PUBLIC_POSTHOG_HOST=
-
-### Disabling functionality (when uncommented)
-
-# Disable API key and base URL input in the chat
-# NEXT_PUBLIC_NO_API_KEY_INPUT=
-# NEXT_PUBLIC_NO_BASE_URL_INPUT=
-
-# Hide local models from the list of available models
-# NEXT_PUBLIC_HIDE_LOCAL_MODELS=
+# Optional Services
+STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
 ```
 
-### 4. Start the development server
+**4. Set up database**
 
-**Web App (Next.js):**
-```
-pnpm dev
-```
-Visit http://localhost:3000
+```bash
+# Initialize Supabase tables
+npx supabase db push
 
-**Desktop App (Electron + Remix):**
+# Or run migrations manually
+psql -h db.your-project.supabase.co -U postgres -f supabase/migrations/*.sql
 ```
-pnpm desktop:dev
-```
-Or:
-```
-cd apps/desktop && pnpm dev
-```
-Visit http://localhost:5173
 
-### 5. Build the applications
+**5. Start development**
 
 **Web App:**
-```
-pnpm build
+```bash
+pnpm dev
+# Open http://localhost:3000
 ```
 
 **Desktop App:**
-```
-pnpm desktop:build        # Build all platforms
-pnpm desktop:build:mac    # macOS only
-pnpm desktop:build:win    # Windows only
-pnpm desktop:build:linux  # Linux only
+```bash
+pnpm desktop:dev
+# Open http://localhost:5173
 ```
 
-## Contributing
+---
 
-As an open-source project, we welcome contributions from the community. If you are experiencing any bugs or want to add some improvements, please feel free to open an issue or pull request.
+## 📦 Technology Stack
 
-## 🔧 Customize
+### Core Framework
+- **Next.js 14** - React framework with App Router & Server Actions
+- **TypeScript** - Type-safe development
+- **Remix + Electron** - Desktop application framework
+- **pnpm Workspaces** - Monorepo package management
 
-### Adding Custom Development Templates
+### UI/UX
+- **shadcn/ui** - Beautiful, accessible component library
+- **TailwindCSS** - Utility-first CSS framework
+- **Framer Motion** - Smooth animations
+- **Radix UI** - Unstyled, accessible primitives
+- **Lucide React** - Icon system
 
-1. Make sure [E2B CLI](https://e2b.dev/docs/cli) is installed and you're logged in.
+### AI & Code Execution
+- **Vercel AI SDK** - Streaming AI responses
+- **E2B SDK** - Secure code execution sandboxes
+- **Monaco Editor** - VS Code-powered code editor
+- **Prism** - Syntax highlighting
 
-2. Add a new folder under [sandbox-templates/](sandbox-templates/)
+### Database & Auth
+- **Supabase** - PostgreSQL database with RLS
+- **Supabase Auth** - User authentication & management
+- **Cloudflare D1** - SQLite for desktop app
 
-3. Initialize a new template using E2B CLI:
+### Payments & Analytics
+- **Stripe** - Subscription billing
+- **PostHog** - Product analytics
+- **Vercel Analytics** - Performance monitoring
 
-    ```bash
-    e2b template init
-    ```
+### Infrastructure
+- **Vercel** - Web app deployment
+- **E2B** - Cloud sandbox execution
+- **Upstash** - Rate limiting
+- **AWS S3** - File storage (optional)
 
-    This will create a new file called `e2b.Dockerfile`.
+---
 
-4. **Configure the Dockerfile**
+## 🔧 Configuration
 
-    Example Streamlit template:
+### Adding Custom AI Models
 
-    ```dockerfile
-    # Use Debian-based base image
-    FROM python:3.11-slim
+Edit `lib/models.json`:
 
-    # Install dependencies
-    RUN pip3 install --no-cache-dir streamlit pandas numpy matplotlib requests seaborn plotly
-
-    # Set working directory
-    WORKDIR /home/user
-    COPY . /home/user
-    ```
-
-5. **Set the start command** in `e2b.toml`:
-
-    ```toml
-    start_cmd = "cd /home/user && streamlit run app.py --server.port 8501 --server.address 0.0.0.0"
-    ```
-
-6. **Deploy the template**
-
-    ```bash
-    e2b template build --name <template-name>
-    ```
-
-    Success message:
-    ```
-    ✅ Building sandbox template <template-id> <template-name> finished.
-    ```
-
-7. **Register in templates.json**
-
-    Add your template to [`lib/templates.json`](lib/templates.json):
-
-    ```json
-    "custom-template": {
-      "name": "Custom Template",
-      "lib": ["dependency1", "dependency2"],
-      "file": "main.py",
-      "instructions": "Template-specific instructions for the AI.",
-      "port": 8080
-    }
-    ```
-
-8. **Add template logo** (optional)
-
-    Place logo SVG in [`public/thirdparty/templates/`](public/thirdparty/templates)
-
-### Adding Custom LLM Models
-
-1. **Register the model** in [`lib/models.json`](lib/models.json):
-
-    ```json
+```json
+{
+  "models": [
     {
-      "id": "custom-model-id",
-      "name": "Custom Model Name", 
-      "provider": "Provider Name",
-      "providerId": "provider-id",
+      "id": "your-model-id",
+      "provider": "Your Provider",
+      "providerId": "provider-key",
+      "name": "Display Name",
       "multiModal": true
     }
-    ```
+  ]
+}
+```
 
-    Parameters:
-    - `id`: Unique model identifier
-    - `name`: Display name in the UI
-    - `provider`: Human-readable provider name
-    - `providerId`: Provider configuration key
-    - `multiModal`: Whether the model supports images/vision
+Configure provider in `lib/models.ts`:
 
-### Adding Custom LLM Providers
+```typescript
+export const providers = {
+  'provider-key': {
+    id: 'provider-key',
+    name: 'Your Provider'
+  }
+}
+```
 
-1. **Configure provider** in [`lib/models.ts`](lib/models.ts):
+Add environment variable:
+```env
+YOUR_PROVIDER_API_KEY=your_key
+```
 
-    Add to the `providerConfigs` object:
+### Adding Custom Sandbox Templates
 
-    ```typescript
-    'custom-provider': () => createOpenAI({ 
-      apiKey: apiKey || process.env.CUSTOM_PROVIDER_API_KEY, 
-      baseURL: baseURL || 'https://api.customprovider.com/v1' 
-    })(modelNameString)
-    ```
+1. Create template directory:
+```bash
+cd sandbox-templates
+e2b template init your-template
+```
 
-2. **Set output mode** (optional) in `getDefaultMode`:
+2. Configure `e2b.toml`:
+```toml
+[template]
+dockerfile = "Dockerfile"
+cmd = "your-start-command"
+```
 
-    ```typescript
-    if (providerId === 'custom-provider') {
-      return 'json' // or 'tool' or 'object'
-    }
-    ```
+3. Create Dockerfile:
+```dockerfile
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y nodejs npm
+WORKDIR /home/user
+```
 
-3. **Add environment variable**:
+4. Deploy template:
+```bash
+e2b template build
+# Output: Template ID: your-template-id
+```
 
-    ```bash
-    CUSTOM_PROVIDER_API_KEY="your-api-key"
-    ```
+5. Register in `lib/templates.json`:
+```json
+{
+  "id": "your-template",
+  "name": "Your Template",
+  "templateId": "your-template-id",
+  "icon": "your-icon.svg"
+}
+```
 
-4. **Add provider logo** (optional):
+---
 
-    Place SVG logo in [`public/thirdparty/logos/`](public/thirdparty/logos)
+## 📖 Usage Examples
 
-### Development Setup
+### Chat with AI to Build Apps
+
+```
+You: "Create a Next.js todo app with dark mode and local storage"
+
+CodingIT:
+✓ Creates Next.js project structure
+✓ Implements todo CRUD operations
+✓ Adds dark mode toggle
+✓ Configures localStorage persistence
+✓ Live preview available at http://localhost:3000
+```
+
+### Data Analysis with Python
+
+```
+You: "Analyze sales_data.csv and create visualizations"
+
+CodingIT:
+✓ Loads pandas & matplotlib
+✓ Performs exploratory data analysis
+✓ Generates charts and statistics
+✓ Outputs interactive plots
+```
+
+### Deploy ML Model with Gradio
+
+```
+You: "Create a sentiment analysis interface using Gradio"
+
+CodingIT:
+✓ Sets up Gradio interface
+✓ Loads sentiment model
+✓ Creates text input component
+✓ Deploys at http://localhost:7860
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
+
+### Development Workflow
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and test thoroughly
-4. Run linting: `npm run lint`
-5. Commit changes: `git commit -m 'Add amazing feature'`
-6. Push to branch: `git push origin feature/amazing-feature`
+3. Make your changes
+4. Run tests: `pnpm lint && pnpm build`
+5. Commit: `git commit -m 'Add amazing feature'`
+6. Push: `git push origin feature/amazing-feature`
 7. Open a Pull Request
 
-## 📜 Apache 2.0 License
+### Areas We Need Help
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- 🐛 Bug fixes and testing
+- 📝 Documentation improvements
+- 🎨 UI/UX enhancements
+- 🌐 Internationalization (i18n)
+- 🔌 New LLM provider integrations
+- 📦 Additional sandbox templates
+
+---
+
+## 📊 Project Stats
+
+- **Lines of Code**: 50,000+
+- **Components**: 40+ React components
+- **API Routes**: 25+ endpoints
+- **Database Tables**: 24 Supabase tables
+- **Supported Models**: 50+ AI models
+- **Contributors**: 8 active contributors
+- **Stars**: 97+ GitHub stars
+- **Deployments**: 221+ production deploys
+
+---
+
+## 📝 Documentation
+
+- **[Complete Documentation](https://docs.codinit.dev)** - Full platform guide
+- **[Workspace Guide](./WORKSPACE.md)** - Monorepo architecture & commands
+- **[Desktop App Docs](https://gerome-elassaad.github.io/codinit-app)** - Native app features
+- **[Changelog](./CHANGELOG.md)** - Version history & updates
+- **[Contributing Guide](.github/CONTRIBUTING.md)** - Contribution guidelines
+
+---
+
+## 🔒 Security
+
+- **E2B Sandboxes**: Isolated code execution prevents system access
+- **Row Level Security**: Database-level access control
+- **API Key Management**: Secure credential storage
+- **Rate Limiting**: Prevents abuse with Upstash Redis
+- **Input Validation**: Comprehensive sanitization
+- **HTTPS Only**: Encrypted connections
+- **Webhook Verification**: Stripe signature validation
+
+
+---
+
+## 📜 License
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](./LICENSE) file for details.
+
+---
 
 ## 🙏 Acknowledgments
 
-- [E2B](https://e2b.dev) for secure code execution environments
-- [Supabase](https://supabase.com) for database and authentication
-- [Vercel](https://vercel.com) for deployment and hosting
-- [shadcn/ui](https://ui.shadcn.com) for beautiful UI components
-- All the amazing AI providers making this possible
+Built with these amazing open-source projects:
+
+- [E2B](https://e2b.dev) - Secure code execution infrastructure
+- [Supabase](https://supabase.com) - Open-source Firebase alternative
+- [Vercel](https://vercel.com) - Deployment and hosting platform
+- [shadcn/ui](https://ui.shadcn.com) - Re-usable component library
+- [Vercel AI SDK](https://sdk.vercel.ai) - AI integration framework
+- All the AI providers powering intelligent code generation
+
+Special thanks to our contributors and the open-source community!
+
+---
+
+## 🌟 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Gerome-Elassaad/CodingIT&type=Date)](https://star-history.com/#Gerome-Elassaad/CodingIT&Date)
+
+---
+
+## 📞 Support & Community
+
+- 💬 **Discord**: [Join our community](https://discord.gg/codinit) *(coming soon)*
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Gerome-Elassaad/CodingIT/issues)
+- 📖 **Documentation**: [docs.codinit.dev](https://docs.codinit.dev)
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the CodingIT Community**
+
+[Website](https://codinit.dev) • [Documentation](https://docs.codinit.dev) • [Desktop App](https://gerome-elassaad.github.io/codinit-app)
+
+⭐ **Star us on GitHub** if you find CodingIT helpful!
+
+</div>
