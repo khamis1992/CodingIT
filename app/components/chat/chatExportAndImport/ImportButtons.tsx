@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/Button';
 import { classNames } from '~/utils/classNames';
 
 type ChatData = {
-  messages?: Message[]; // Standard codinit format
+  messages?: Message[]; // Standard CodinIT.dev format
   description?: string; // Optional description
 };
 

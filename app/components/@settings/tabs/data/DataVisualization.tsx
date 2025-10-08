@@ -107,7 +107,7 @@ export function DataVisualization({ chats }: DataVisualizationProps) {
   };
 
   const getChartColors = (index: number) => {
-    // Define color palettes based on codinit design tokens
+    // Define color palettes based on CodinIT.dev design tokens
     const baseColors = [
       // Indigo
       {

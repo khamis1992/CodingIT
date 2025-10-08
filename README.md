@@ -1,3 +1,5 @@
+# CodinIT.dev
+
 ![CodinIT.dev: AI-Powered Full-Stack Web Development in the Browser](https://github.com/user-attachments/assets/de684e88-a65c-42ea-b067-d1a3bc85a420)
 
 
@@ -462,3 +464,27 @@ Remember to always commit your local changes or stash them before pulling update
   - **`pnpm electron:build:win`**: Builds for Windows.
   - **`pnpm electron:build:linux`**: Builds for Linux.
   - **`pnpm electron:build:dist`**: Builds for all platforms.
+
+---
+
+## Contributing
+
+We welcome contributions! Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
+
+---
+
+## Roadmap
+
+Explore upcoming features and priorities on our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo).
+
+---
+
+## FAQ
+
+For answers to common questions, issues, and to see a list of recommended models, visit our [FAQ Page](FAQ.md).
+
+
+# Licensing
+**Who needs a commercial WebContainer API license?**
+
+CodinIT.dev source code is distributed as MIT, but it uses WebContainers API that [requires licensing](https://webcontainers.io/enterprise) for production usage in a commercial, for-profit setting. (Prototypes or POCs do not require a commercial license.) If you're using the API to meet the needs of your customers, prospective customers, and/or employees, you need a license to ensure compliance with our Terms of Service. Usage of the API in violation of these terms may result in your access being revoked.

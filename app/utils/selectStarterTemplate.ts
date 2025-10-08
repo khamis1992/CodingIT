@@ -163,7 +163,7 @@ export async function getTemplates(templateName: string, title?: string) {
   // exclude    .codinit
   filteredFiles = filteredFiles.filter((x) => x.path.startsWith('.codinit') == false);
 
-  // check for ignore file in .codinit folder
+  // check for ignore file in .CodinIT.dev folder
   const templateIgnoreFile = files.find((x) => x.path.startsWith('.codinit') && x.name == 'ignore');
 
   const filesToImport = {
@@ -184,7 +184,7 @@ export async function getTemplates(templateName: string, title?: string) {
   }
 
   const assistantMessage = `
-codinit is initializing your project with the required files using the ${template.name} template.
+CodinIT.dev is initializing your project with the required files using the ${template.name} template.
 <codinitArtifact id="imported-files" title="${title || 'Create initial files'}" type="bundled">
 ${filesToImport.files
   .map(
