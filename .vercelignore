@@ -1,7 +1,67 @@
-# Vercel Deployment - Ignore apps workspace
+# ==========================================
+# CodingIT Vercel Deployment Ignore File
+# ==========================================
 
-# Apps directory (desktop app deployed separately)
+# Exclude desktop app directory (we only deploy the web app)
 apps/
-apps/**
 
-# Only deploy web app (@codinit/web) from root
+# Environment files (these are set in Vercel dashboard)
+.env
+.env.local
+.env.local.example
+
+# Build directories that shouldn't be deployed
+node_modules/
+.next/
+build/
+dist/
+
+# Development files
+*.log
+.DS_Store
+Thumbs.db
+
+# Source maps (optional - uncomment if you don't want them deployed)
+# *.map
+
+# Supabase local development
+supabase/
+
+# Desktop app specific files
+apps/desktop/
+
+# Development documentation
+WORKSPACE.md
+CHANGELOG.md
+LLM.txt
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.pnpm-store/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing files
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# GitHub workflows and templates (keep only if needed for Vercel)
+.github/
+
+# Docker files (not needed for Vercel)
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+
+# Miscellaneous
+*.tsbuildinfo
+.eslintcache

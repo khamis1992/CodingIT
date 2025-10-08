@@ -32,7 +32,7 @@ export async function validateEmail(email: string): Promise<boolean> {
     `https://api.zerobounce.net/v2/validate?api_key=${process.env.ZEROBOUNCE_API_KEY}&email=${email}&ip_address=`,
   )
 
-  const responseData = await response.json()
+  const responseData = await response.json() as Record<string, any>
 
   const data = {
     ...responseData,

@@ -131,6 +131,10 @@
     "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "browserslist": [
     "> 0.5%",
     "last 2 versions",

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json() as { path: string; content: string }
     const { path, content } = body
 
     if (!path || content === undefined) {

@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json() as { path: string; isDirectory: boolean; content?: string }
     const { path, isDirectory, content = '' } = body
 
     if (!path) {
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json() as { path: string }
     const { path } = body
 
     if (!path) {
