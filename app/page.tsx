@@ -168,22 +168,30 @@ export default function Home() {
         const result = await response.json()
         
         if (!response.ok) {
-          console.error('Sandbox creation failed:', result)
-          setErrorMessage(result.error || 'Failed to create sandbox environment')
-          setIsPreviewLoading(false)
-          return
+          // If response is not ok, result is an error object
+          const errorResult = result as { error?: string };
+          console.error('Sandbox creation failed:', errorResult);
+          setErrorMessage(errorResult.error || 'Failed to create sandbox environment');
+          setIsPreviewLoading(false);
+          return;
         }
 
-        // Enhanced sandbox tracking
-        const creationTime = Date.now() - Date.now() // Would track actual creation time
-        
-        posthog.capture('sandbox_created', { url: result.url })
+        // If response is ok, result is an ExecutionResult
+        const executionResult = result as ExecutionResult;
 
-        setResult(result)
-        setCurrentPreview({ fragment, result })
-        setMessage({ result })
-        setCurrentTab('fragment')
-        setIsPreviewLoading(false)
+        // Enhanced sandbox tracking
+        // const creationTime = Date.now() - Date.now() // Would track actual creation time
+        
+        // Only capture url if it's a web execution result
+        if ('url' in executionResult) {
+          posthog.capture('sandbox_created', { url: executionResult.url });
+        }
+
+        setResult(executionResult);
+        setCurrentPreview({ fragment, result: executionResult });
+        setMessage({ result: executionResult });
+        setCurrentTab('fragment');
+        setIsPreviewLoading(false);
       }
     },
   })
@@ -496,7 +504,7 @@ export default function Home() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData: { error?: string } = await response.json()
         throw new Error(errorData.error || 'Code execution failed')
       }
 
