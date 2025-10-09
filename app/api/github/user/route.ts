@@ -19,7 +19,7 @@ export async function GET() {
       throw new Error(`GitHub API error: ${response.status}`)
     }
 
-    const user = await response.json()
+    const user = await response.json() as any
 
     return NextResponse.json({
       login: user.login,

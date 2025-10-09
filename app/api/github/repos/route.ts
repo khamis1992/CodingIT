@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     let isAuthenticatedUser = false
     if (userResponse.ok) {
-      const user = await userResponse.json()
+      const user = await userResponse.json() as any
       isAuthenticatedUser = user.login === owner
     }
 
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         throw new Error(`GitHub API error: ${response.status}`)
       }
 
-      const repos = await response.json()
+      const repos = await response.json() as any[]
 
       // If we get fewer repos than the per_page limit, we've reached the end
       if (repos.length === 0) {

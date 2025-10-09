@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       workingDirectory: wd = '/home/user',
       teamID,
       accessToken
-    } = await req.json()
+    } = await req.json() as any
 
     workingDirectory = wd
 

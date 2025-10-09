@@ -34,7 +34,7 @@ export async function GET(
       throw new Error(`GitHub API error: ${response.status}`)
     }
 
-    const data = await response.json()
+    const data = await response.json() as any
 
     // If it's a single file, return the file content
     if (data.type === 'file') {

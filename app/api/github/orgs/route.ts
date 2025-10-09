@@ -19,7 +19,7 @@ export async function GET() {
       throw new Error(`GitHub API error: ${response.status}`)
     }
 
-    const orgs = await response.json()
+    const orgs = await response.json() as any[]
 
     return NextResponse.json(
       orgs.map((org: any) => ({

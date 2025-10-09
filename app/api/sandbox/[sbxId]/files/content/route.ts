@@ -93,7 +93,7 @@ export async function POST(
 ) {
   try {
     const { sbxId } = params
-    const { path: filePath, content } = await req.json()
+    const { path: filePath, content } = await req.json() as { path: string; content: string }
 
     if (!sbxId) {
       return new Response(

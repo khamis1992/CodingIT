@@ -26,7 +26,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerClient()
-    const body = await request.json()
+    const body = await request.json() as any
 
     // Get user from Supabase auth
     const { data: { user } } = await supabase.auth.getUser()
