@@ -6,6 +6,9 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
+  // Add error boundary and logging
+  swcMinify: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {
