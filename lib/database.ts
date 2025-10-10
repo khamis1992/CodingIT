@@ -83,7 +83,12 @@ async function safeApiCall<T>(
   try {
     return await operation()
   } catch (error) {
-    console.error(`${operationName} failed:`, error)
+    // Log detailed error for debugging but don't expose to console.error
+    console.warn(`${operationName} failed:`, {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      operation: operationName,
+      timestamp: new Date().toISOString()
+    })
     return fallback
   }
 }
@@ -331,3 +336,6 @@ export function resetTableCheck(): void {
   tablesChecked = false
   tablesExist = false
 }
+
+// Force table check reset immediately after migration
+resetTableCheck();
